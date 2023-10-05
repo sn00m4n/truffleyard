@@ -1,0 +1,7 @@
+target/
+*.json
+*.csv
+notes.md
+*.txt
+.idea/
+testlists/
