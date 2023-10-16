@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 pub type VendorList = HashMap<u16, Vendor>;
 
 // Structs:
-///Struct for saving the vendors and their products for comparison with vid, pid 'n shit (sorry)
+///Struct for saving the vendors and their products for comparison with vid, pid
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Vendor {
     pub name: Option<String>,

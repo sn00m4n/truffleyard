@@ -20,7 +20,7 @@ struct RDPEventEntry {
     data: Value,
 }
 
-pub fn evtx_rdp_usage_data(input: &String, outfile: String) -> Result<(), Error> {
+pub fn sec_evtx_rdp_usage_data(input: &String, outfile: String) -> Result<(), Error> {
     let mut parser = parse_evtx(input).unwrap();
     let mut rdp_usage_list: Vec<RDPEventEntry> = Vec::new();
 
