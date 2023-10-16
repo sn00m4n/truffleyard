@@ -1,12 +1,18 @@
+pub mod errors;
 mod eventlogs;
 mod registry;
 //mod eventlogs;
 //utf16le
 
-use clap::{Parser, Subcommand};
-use common::{find_software_hive, find_system_evtx, find_system_hive};
+use std::env;
 
-use crate::eventlogs::account_usage::service_events::evtx_service_events_data;
+use clap::{Parser, Subcommand};
+use common::{find_security_evtx, find_software_hive, find_system_evtx, find_system_hive};
+
+use crate::eventlogs::account_usage::rdp_usage::evtx_rdp_usage_data;
+use crate::eventlogs::account_usage::service_events::{
+    sec_evtx_service_events_data, sys_evtx_service_events_data,
+};
 use crate::registry::application_execution::shimcache::shimcache_data;
 use crate::registry::external_devices::sof_volname::sof_get_device_data;
 use crate::registry::external_devices::sys_hid::sys_get_hid_data;
@@ -43,11 +49,17 @@ struct Cli {
 }
 
 fn main() {
+    /* if env::var("RUST_LOG").is_err() {
+        env::set_var("RUST_LOG", "truffleyard=TRACE");
+    }
+    env_logger::init();*/
+
     // let vidpidjson = "./out.json".to_string();
     let cli = Cli::parse();
-    let sys_file = find_system_hive(&cli.filepath_image).unwrap_or("file not found".to_string());
+    let sec_file = find_security_evtx(&cli.filepath_image).unwrap_or("file not found".to_string());
 
-    shimcache_data(&sys_file, "testfiles/test1.json".to_string());
+    evtx_rdp_usage_data(&sec_file, "testfiles/rdp_data_test.json".to_string())
+        .expect("if you see this, i fucked up");
 
     /*match cli.subcommand {
         Sub::Registry => {

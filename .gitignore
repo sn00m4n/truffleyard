@@ -1,7 +1,9 @@
 target/
 *.json
 *.csv
-notes.md
+auslagerungen.txt
 *.txt
 .idea/
 testlists/
+notes.md
+nt-hive/

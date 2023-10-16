@@ -3,6 +3,7 @@ use std::io;
 
 use evtx::err::EvtxError;
 
+#[derive(Debug)]
 pub enum Error {
     EvtxError(EvtxError),
     IOError(io::Error),

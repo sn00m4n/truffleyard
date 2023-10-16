@@ -264,7 +264,9 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "encoding_rs",
+ "evtx",
  "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -533,7 +535,7 @@ dependencies = [
  "encoding",
  "indoc",
  "log",
- "quick-xml",
+ "quick-xml 0.24.1",
  "rayon",
  "serde",
  "serde_json",
@@ -796,6 +798,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "37dddbbe9df96afafcb8027fcf263971b726530e12f0787f620a7ba5b4846081"
 dependencies = [
  "memchr",
+]
+
+[[package]]
+name = "quick-xml"
+version = "0.28.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0ce5e73202a820a31f8a0ee32ada5e21029c81fd9e3ebf668a40832e4219d9d1"
+dependencies = [
+ "memchr",
+ "serde",
 ]
 
 [[package]]
@@ -1119,14 +1131,18 @@ dependencies = [
  "common",
  "csv",
  "encoding_rs",
+ "env_logger",
  "evtx",
+ "log",
  "nt-hive",
  "once_cell",
+ "rayon",
  "regex",
  "serde",
  "serde-jsonlines",
  "serde-xml-rs",
  "serde_json",
+ "xmltojson",
 ]
 
 [[package]]
@@ -1426,6 +1442,18 @@ name = "xml-rs"
 version = "0.8.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0fcb9cbac069e033553e8bb871be2fbdffcab578eb25bd0f7c508cedc6dcd75a"
+
+[[package]]
+name = "xmltojson"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "35c6ef73dae3b7a4a94270d84e70e8ac63134d47106a7283450137bee3439bbb"
+dependencies = [
+ "log",
+ "quick-xml 0.28.2",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "zerocopy"
