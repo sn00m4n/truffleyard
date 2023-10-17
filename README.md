@@ -1,3 +1,4 @@
 # TRUFFLEYARD
-# not really ready yet tho 
+
+# forensic automation tool using the SANS Windows Forensic Analysis Poster  
 pls excuse my lazy comments and nonexistent tutorial for now
