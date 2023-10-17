@@ -67,7 +67,7 @@
 - [ ] Cloud Account Details 
 - [ ] Last Login and Password Change 
 - [x] Service Events 
-- [ ] User Accounts 
+- [x] User Accounts 
 - [x] Remote Desktop Protocol (RDP) Usage 
 - [x] Successful/Failed Logons
 - [x] Authentication Events

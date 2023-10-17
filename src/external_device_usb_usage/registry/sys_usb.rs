@@ -37,7 +37,7 @@ pub fn sys_get_usb_data(reg_file: &String, vidpid_json_path: &String, out_json: 
 
     let sub_key_nodes = sub_key_node.subkeys().unwrap().unwrap();
 
-    let mut usb_entries: Vec<UsbEntry> = Vec::new(); // liste mit structs erstellen
+    let mut usb_entries: Vec<UsbEntry> = Vec::new(); // list to save structs
 
     let data = read_to_string(vidpid_json_path).unwrap();
     let vendors: VendorList = serde_json::from_str(&data).unwrap();

@@ -30,7 +30,7 @@ pub fn sec_evtx_rdp_usage_data(input: &String, outfile: String) -> Result<(), Er
 
         let event_id = event.system.event_id;
         let logon_type = OuterName::Known(Name::LogonType);
-        println!("{event_id}");
+        //println!("{event_id}");
         if event_id == 4624 {
             for data in event.event_data.unwrap().events {
                 if data.name == logon_type {
