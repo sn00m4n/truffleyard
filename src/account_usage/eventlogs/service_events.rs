@@ -27,6 +27,8 @@ pub fn sys_evtx_service_events_data(input: &String, outfile: String) -> Result<(
     for record in parser.records() {
         let record = record.unwrap();
         let event: Event = serde_xml_rs::from_str(&record.data).unwrap();
+
+        // event id 7034 -> service crashed unexpectedly
         if event.system.event_id == 7034 {
             let data = record.clone().data;
             let json_data = to_json(&data).unwrap();
@@ -40,6 +42,8 @@ pub fn sys_evtx_service_events_data(input: &String, outfile: String) -> Result<(
             };
             service_event_list.push(service_entry);
         }
+
+        // event id 7035 -> service sent start/stop control
         if event.system.event_id == 7035 {
             let data = record.clone().data;
             let json_data = to_json(&data).unwrap();
@@ -52,6 +56,8 @@ pub fn sys_evtx_service_events_data(input: &String, outfile: String) -> Result<(
             };
             service_event_list.push(service_entry);
         }
+
+        // event id 7036 -> service started or stopped
         if event.system.event_id == 7036 {
             let data = record.clone().data;
             let json_data = to_json(&data).unwrap();
@@ -64,6 +70,8 @@ pub fn sys_evtx_service_events_data(input: &String, outfile: String) -> Result<(
             };
             service_event_list.push(service_entry);
         }
+
+        // event id 7040 -> start type changed
         if event.system.event_id == 7040 {
             let data = record.clone().data;
             let json_data = to_json(&data).unwrap();
@@ -76,6 +84,8 @@ pub fn sys_evtx_service_events_data(input: &String, outfile: String) -> Result<(
             };
             service_event_list.push(service_entry);
         }
+
+        // event id 7045 -> service was installed on system
         if event.system.event_id == 7045 {
             let data = record.clone().data;
             let json_data = to_json(&data).unwrap();
@@ -89,10 +99,14 @@ pub fn sys_evtx_service_events_data(input: &String, outfile: String) -> Result<(
             service_event_list.push(service_entry);
         }
     }
+
+    // check if list empty
     if service_event_list.is_empty() {
         println!("Nothing to do :(");
         return Ok(());
     }
+
+    // write outfile in ndjson
     write_json_lines(outfile, service_event_list).expect("failed to write .json!");
     println!("Done! :)");
     Ok(())

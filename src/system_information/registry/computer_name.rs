@@ -6,12 +6,14 @@ use serde::Serialize;
 use serde_jsonlines;
 use serde_jsonlines::write_json_lines;
 
+use crate::errors::Error;
+
 #[derive(Debug, Serialize)]
 struct ComputerName {
     computer_name: String,
 }
 
-pub fn get_computer_name(reg_file: &String, out_json: String) {
+pub fn get_computer_name(reg_file: &String, out_json: String) -> Result<(), Error> {
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -36,5 +38,10 @@ pub fn get_computer_name(reg_file: &String, out_json: String) {
 
     let computername = ComputerName { computer_name };
     computers.push(computername);
+    if computers.is_empty() {
+        println!("Nothing to do.");
+        return Ok(());
+    }
     write_json_lines(out_json, &computers).expect("failed to write json :(");
+    Ok(())
 }

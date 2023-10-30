@@ -83,10 +83,12 @@ pub fn sec_evtx_authentication_events_data(input: &String, outfile: String) -> R
             authentication_event_list.push(authentication_entry);
         }
     }
+    // check if list is empty so it doesnt create an empty file
     if authentication_event_list.is_empty() {
         println!("Nothing to do :(");
         return Ok(());
     }
+    // write json file in ndjson format
     write_json_lines(outfile, authentication_event_list).expect("failed to write .json!");
     println!("Done! :)");
     Ok(())

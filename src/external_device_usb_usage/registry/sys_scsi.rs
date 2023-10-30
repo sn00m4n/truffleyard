@@ -9,6 +9,8 @@ use regex::Regex;
 use serde::Serialize;
 use serde_jsonlines::write_json_lines;
 
+use crate::errors::Error;
+
 #[derive(Debug, Serialize)]
 struct ScsiEntry {
     time_stamp: DateTime<Utc>,
@@ -23,7 +25,7 @@ struct ScsiEntry {
 static RE: Lazy<Regex> =
     Lazy::new(|| Regex::new("Disk&Ven_(?<man>.*?)&Prod_(?<titl>.*?\\S*)").unwrap());
 
-pub fn sys_get_scsi_data(reg_file: &String, outfile: String) {
+pub fn sys_get_scsi_data(reg_file: &String, outfile: String) -> Result<(), Error> {
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -179,5 +181,10 @@ pub fn sys_get_scsi_data(reg_file: &String, outfile: String) {
             }
         }
     }
+    if scsi_entries.is_empty() {
+        println!("Nothing to do.");
+        return Ok(());
+    }
     write_json_lines(outfile, &scsi_entries).expect("failed to write .json");
+    Ok(())
 }

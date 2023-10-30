@@ -8,12 +8,14 @@ use serde::Serialize;
 use serde_jsonlines;
 use serde_jsonlines::write_json_lines;
 
+use crate::errors::Error;
+
 #[derive(Debug, Serialize)]
 pub struct ShutdownTime {
     shutdown_time: DateTime<Utc>,
 }
 
-pub fn get_shutdown_time(reg_file: &String, out_json: String) {
+pub fn get_shutdown_time(reg_file: &String, out_json: String) -> Result<(), Error> {
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -50,5 +52,10 @@ pub fn get_shutdown_time(reg_file: &String, out_json: String) {
 
     times.push(shuttime);
 
+    if times.is_empty() {
+        println!("Nothing to do.");
+        return Ok(());
+    }
     write_json_lines(out_json, &times).expect("failed to write json:(");
+    Ok(())
 }

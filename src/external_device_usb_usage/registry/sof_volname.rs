@@ -9,6 +9,8 @@ use regex::Regex;
 use serde::Serialize;
 use serde_jsonlines::write_json_lines;
 
+use crate::errors::Error;
+
 // drive letter and device from SOFTWARE hive
 
 //regional express
@@ -38,7 +40,11 @@ struct Device {
     friendly_name: String,
 }
 
-pub fn sof_get_device_data(reg_file: &String, vidpid_json: &String, outfile: String) {
+pub fn sof_get_device_data(
+    reg_file: &String,
+    vidpid_json: &String,
+    outfile: String,
+) -> Result<(), Error> {
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -272,5 +278,10 @@ pub fn sof_get_device_data(reg_file: &String, vidpid_json: &String, outfile: Str
             }
         }
     }
+    if volnames.is_empty() {
+        println!("Nothing to do.");
+        return Ok(());
+    }
     write_json_lines(outfile, volnames).expect("failed to write .json!");
+    Ok(())
 }

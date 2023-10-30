@@ -8,6 +8,8 @@ use serde::Serialize;
 use serde_jsonlines;
 use serde_jsonlines::write_json_lines;
 
+use crate::errors::Error;
+
 #[derive(Debug, Serialize)]
 struct SourceOSEntry {
     current_build_number: String,
@@ -23,7 +25,7 @@ struct SourceOSEntry {
     software_type: String,
 }
 
-pub fn get_os_updates(reg_file: &String, out_json: String) {
+pub fn get_os_updates(reg_file: &String, out_json: String) -> Result<(), Error> {
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -128,5 +130,11 @@ pub fn get_os_updates(reg_file: &String, out_json: String) {
             sourceos_entries.push(source_os_entry);
         }
     }
+    if sourceos_entries.is_empty() {
+        println!("Nothing to do.");
+        return Ok(());
+    }
+
     write_json_lines(&out_json, &sourceos_entries).expect("failed to write .json");
+    Ok(())
 }

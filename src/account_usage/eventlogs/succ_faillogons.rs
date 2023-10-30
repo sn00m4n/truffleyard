@@ -274,10 +274,14 @@ pub fn sys_evtx_logons_data(input: &String, outfile: String) -> Result<(), Error
             logons_list.push(logon_entry);
         }
     }
+
+    // ceck if list is empty
     if logons_list.is_empty() {
         println!("Nothing to do :(");
         return Ok(());
     }
+
+    // write output in ndjson
     write_json_lines(outfile, logons_list).expect("failed to write .json!");
     println!("Done! :)");
     Ok(())

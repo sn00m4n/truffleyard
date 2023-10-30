@@ -7,6 +7,8 @@ use nt_hive::Hive;
 use serde::Serialize;
 use serde_jsonlines::write_json_lines;
 
+use crate::errors::Error;
+
 #[derive(Debug, Serialize)]
 struct HdiEntry {
     full_key_name: String,
@@ -20,7 +22,11 @@ struct HdiEntry {
     last_connected: DateTime<Utc>,
 }
 
-pub fn sys_get_hid_data(reg_file: &String, vidpid_json_path: &String, outpath: String) {
+pub fn sys_get_hid_data(
+    reg_file: &String,
+    vidpid_json_path: &String,
+    outpath: String,
+) -> Result<(), Error> {
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -215,5 +221,10 @@ pub fn sys_get_hid_data(reg_file: &String, vidpid_json_path: &String, outpath: S
             }
         }
     }
+    if hdi_entries.is_empty() {
+        println!("Nothing to do.");
+        return Ok(());
+    }
     write_json_lines(outpath, &hdi_entries).expect("failed to write .json!");
+    Ok(())
 }

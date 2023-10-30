@@ -8,6 +8,8 @@ use serde::Serialize;
 use serde_jsonlines;
 use serde_jsonlines::write_json_lines;
 
+use crate::errors::Error;
+
 //SOFTWARE HIVE
 #[derive(Debug, Serialize)]
 struct VicEntry {
@@ -17,7 +19,7 @@ struct VicEntry {
     drive_type: String,
 }
 
-pub fn sof_get_vic_data(reg_file: &String, out_json: String) {
+pub fn sof_get_vic_data(reg_file: &String, out_json: String) -> Result<(), Error> {
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -43,6 +45,8 @@ pub fn sof_get_vic_data(reg_file: &String, out_json: String) {
         let drivetype = sub_key.value("DriveType");
         if let Some(Ok(drive)) = drivetype {
             let drivedata = drive.dword_data().unwrap();
+            // check different drive types
+            // drive type 3 -> fixed disk
             if drivedata == 3 {
                 let drive_name = sub_key.name().unwrap().to_string();
                 let timestamp = convert_win_time(sub_key.header().timestamp.get());
@@ -65,6 +69,8 @@ pub fn sof_get_vic_data(reg_file: &String, out_json: String) {
                     vic_entries.push(vicentry);
                 }
             }
+
+            // drive type 5 -> CDRom
             if drivedata == 5 {
                 let drive_name = sub_key.name().unwrap().to_string();
                 let timestamp = convert_win_time(sub_key.header().timestamp.get());
@@ -87,6 +93,8 @@ pub fn sof_get_vic_data(reg_file: &String, out_json: String) {
                     vic_entries.push(vicentry);
                 }
             }
+
+            // drive type 4 -> network drive
             if drivedata == 4 {
                 let drive_name = sub_key.name().unwrap().to_string();
                 let timestamp = convert_win_time(sub_key.header().timestamp.get());
@@ -109,6 +117,8 @@ pub fn sof_get_vic_data(reg_file: &String, out_json: String) {
                     vic_entries.push(vicentry);
                 }
             }
+
+            // drive type 1 -> no root directory
             if drivedata == 1 {
                 let drive_name = sub_key.name().unwrap().to_string();
                 let timestamp = convert_win_time(sub_key.header().timestamp.get());
@@ -131,6 +141,8 @@ pub fn sof_get_vic_data(reg_file: &String, out_json: String) {
                     vic_entries.push(vicentry);
                 }
             }
+
+            // drive type 6 -> RAM disk
             if drivedata == 6 {
                 let drive_name = sub_key.name().unwrap().to_string();
                 let timestamp = convert_win_time(sub_key.header().timestamp.get());
@@ -153,6 +165,8 @@ pub fn sof_get_vic_data(reg_file: &String, out_json: String) {
                     vic_entries.push(vicentry);
                 }
             }
+
+            // drive type 2 -> Removable storage device
             if drivedata == 2 {
                 let drive_name = sub_key.name().unwrap().to_string();
                 let timestamp = convert_win_time(sub_key.header().timestamp.get());
@@ -175,6 +189,8 @@ pub fn sof_get_vic_data(reg_file: &String, out_json: String) {
                     vic_entries.push(vicentry);
                 }
             }
+
+            // drive type 0 -> unknown
             if drivedata == 0 {
                 let drive_name = sub_key.name().unwrap().to_string();
                 let timestamp = convert_win_time(sub_key.header().timestamp.get());
@@ -197,6 +213,8 @@ pub fn sof_get_vic_data(reg_file: &String, out_json: String) {
                     vic_entries.push(vicentry);
                 }
             }
+
+            // anything else
         } else {
             let drive_name = sub_key.name().unwrap().to_string();
             let timestamp = convert_win_time(sub_key.header().timestamp.get());
@@ -220,5 +238,11 @@ pub fn sof_get_vic_data(reg_file: &String, out_json: String) {
             }
         }
     }
+
+    if vic_entries.is_empty() {
+        println!("Nothing to do.");
+        return Ok(());
+    }
     write_json_lines(&out_json, &vic_entries).expect("failed to write .json");
+    Ok(())
 }

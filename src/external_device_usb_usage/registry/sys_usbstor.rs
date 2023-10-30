@@ -10,6 +10,8 @@ use serde::Serialize;
 use serde_jsonlines;
 use serde_jsonlines::write_json_lines;
 
+use crate::errors::Error;
+
 #[derive(Debug, Serialize)]
 struct UsbStorEntry {
     time_stamp: DateTime<Utc>,
@@ -26,7 +28,7 @@ struct UsbStorEntry {
 static RE: Lazy<Regex> =
     Lazy::new(|| Regex::new("Disk&Ven_(?<man>.*?)&Prod_(?<titl>.*?)&Rev_(?<vers>\\S+)").unwrap());
 
-pub fn sys_get_usbstor_data(reg_file: &String, outfile: String) {
+pub fn sys_get_usbstor_data(reg_file: &String, outfile: String) -> Result<(), Error> {
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -241,5 +243,10 @@ pub fn sys_get_usbstor_data(reg_file: &String, outfile: String) {
             }
         }
     }
+    if usbstor_entries.is_empty() {
+        println!("Nothing to do.");
+        return Ok(());
+    }
     write_json_lines(outfile, &usbstor_entries).expect("failed to write .json");
+    Ok(())
 }

@@ -10,6 +10,8 @@ use regex::Regex;
 use serde::Serialize;
 use serde_jsonlines::write_json_lines;
 
+use crate::errors::Error;
+
 // drive letter and volume name from System Hive
 
 //regional express
@@ -34,7 +36,7 @@ pub struct MountedDevice {
     guid: String,
 }
 
-pub fn sys_get_mounteddev_data(reg_file: &String, outfile: String) {
+pub fn sys_get_mounteddev_data(reg_file: &String, outfile: String) -> Result<(), Error> {
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -119,6 +121,10 @@ pub fn sys_get_mounteddev_data(reg_file: &String, outfile: String) {
             }
         }
     }
-
+    if mounted_devices.is_empty() {
+        println!("Nothing to do.");
+        return Ok(());
+    }
     write_json_lines(outfile, &mounted_devices).expect("failed to write .json");
+    Ok(())
 }

@@ -5,5 +5,9 @@ auslagerungen.txt
 *.txt
 .idea/
 testlists/
+testfiles2/
+testfiles/
 notes.md
 nt-hive/
+src/tests
+forensic-tools/

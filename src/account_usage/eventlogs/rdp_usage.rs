@@ -20,6 +20,7 @@ struct RDPEventEntry {
     data: Value,
 }
 
+// function to get data
 pub fn sec_evtx_rdp_usage_data(input: &String, outfile: String) -> Result<(), Error> {
     let mut parser = parse_evtx(input).unwrap();
     let mut rdp_usage_list: Vec<RDPEventEntry> = Vec::new();
@@ -31,6 +32,7 @@ pub fn sec_evtx_rdp_usage_data(input: &String, outfile: String) -> Result<(), Er
         let event_id = event.system.event_id;
         let logon_type = OuterName::Known(Name::LogonType);
         //println!("{event_id}");
+        // event id 4624 & logon type 10 -> successful rdp logon
         if event_id == 4624 {
             for data in event.event_data.unwrap().events {
                 if data.name == logon_type {
@@ -51,6 +53,7 @@ pub fn sec_evtx_rdp_usage_data(input: &String, outfile: String) -> Result<(), Er
                 }
             }
         }
+        // event id 4779 -> session connected/reconnected
         if event_id == 4778 {
             let data = record.clone().data;
             let json_data = to_json(&data).unwrap();
@@ -65,6 +68,7 @@ pub fn sec_evtx_rdp_usage_data(input: &String, outfile: String) -> Result<(), Er
             };
             rdp_usage_list.push(rdp_entry);
         }
+        // event id 4779 -> session disconnected
         if event_id == 4779 {
             let data = record.clone().data;
             let json_data = to_json(&data).unwrap();
@@ -80,12 +84,13 @@ pub fn sec_evtx_rdp_usage_data(input: &String, outfile: String) -> Result<(), Er
             rdp_usage_list.push(rdp_entry);
         }
     }
-
+    // check if list is empty
     if rdp_usage_list.is_empty() {
         println!("Nothing to do :(");
         return Ok(());
     }
 
+    //write outfile as ndjson
     write_json_lines(outfile, rdp_usage_list).expect("failed to write .json!");
     println!("Done! :)");
     Ok(())

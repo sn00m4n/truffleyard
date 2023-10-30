@@ -8,8 +8,7 @@ mod external_device_usb_usage;
 mod file_folder_opening;
 mod network_activity_physical_location;
 mod system_information;
-//mod eventlogs;
-//utf16le
+mod tests;
 
 use std::env;
 
@@ -17,6 +16,7 @@ use clap::{Parser, Subcommand};
 use common::{find_security_evtx, find_software_hive, find_system_evtx, find_system_hive};
 
 use crate::account_usage::registry::user_accounts::get_profile_list;
+use crate::tests::test::testing;
 
 /*#[derive(Subcommand)]
 enum Sub {
@@ -31,7 +31,7 @@ enum Sub {
 #[command(
     author = "ally",
     version = "0.1",
-    about = "Soon to be nice tool for forensic stuff :)"
+    about = "Hopefully once nice tool for forensics in the making :)"
 )]
 struct Cli {
     ///path where mounted image is located
@@ -42,9 +42,10 @@ struct Cli {
 }
 
 fn main() {
-    let cli = Cli::parse();
+    //testing("testfiles2/SYSTEM_clean")
+    /* let cli = Cli::parse();
     let sof_file = find_software_hive(&cli.filepath_image).unwrap_or("file not found".to_string());
 
     get_profile_list(&sof_file, "testfiles/profile_list.json".to_string())
-        .expect("if you see this, i messed up");
+        .expect("if you see this, i messed up"); */
 }

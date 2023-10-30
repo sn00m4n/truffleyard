@@ -8,6 +8,8 @@ use serde::Serialize;
 use serde_jsonlines;
 use serde_jsonlines::write_json_lines;
 
+use crate::errors::Error;
+
 #[derive(Debug, Serialize)]
 struct UsbEntry {
     vid: String,
@@ -21,7 +23,11 @@ struct UsbEntry {
     time_stamp: DateTime<Utc>,
 }
 
-pub fn sys_get_usb_data(reg_file: &String, vidpid_json_path: &String, out_json: String) {
+pub fn sys_get_usb_data(
+    reg_file: &String,
+    vidpid_json_path: &String,
+    out_json: String,
+) -> Result<(), Error> {
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -302,8 +308,12 @@ pub fn sys_get_usb_data(reg_file: &String, vidpid_json_path: &String, out_json: 
                     }
                 }
             }
-
-            write_json_lines(&out_json, &usb_entries).expect("failed to write .json");
         }
     }
+    if usb_entries.is_empty() {
+        println!("Nothing to do.");
+        return Ok(());
+    }
+    write_json_lines(&out_json, &usb_entries).expect("failed to write .json");
+    Ok(())
 }

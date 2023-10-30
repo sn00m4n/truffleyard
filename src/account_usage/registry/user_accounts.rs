@@ -20,6 +20,7 @@ struct ProfileListEntry {
     profile_image_path: String,
 }
 
+// retrieve data about users
 pub fn get_profile_list(reg_file: &String, out_json: String) -> Result<(), Error> {
     let mut buffer = Vec::new();
     File::open(reg_file)

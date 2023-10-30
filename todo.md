@@ -1,4 +1,5 @@
-# To Do aka the poster written down so I can check everything off
+# Overview of what has been done so far (checked off the SANS Windows Forensics Poster)
+
 
 ## Application Execution
 - [ ] Shimcache 
