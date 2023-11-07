@@ -1,5 +1,16 @@
 # Overview of what has been done so far (checked off the SANS Windows Forensics Poster)
 
+# Table of Contents
+1. [Application Execution](#application-execution)
+2. [File and Folder Opening](#file-and-folder-opening)
+3. [Deleted Items and File Existence](#deleted-items-and-file-existence)
+4. [Browser Activity](#browser-activity)
+5. [System Information](#system-information)
+6. [Cloud Storage](#cloud-storage)
+7. [Account Usage](#account-usage)
+8. [External Device / USB Usage](#external-device--usb-usage)
+9. [Other To-Do's](#other-to-dos)
+
 ## Application Execution
 - [ ] Shimcache 
 - [ ] Windows 10 Timeline 
@@ -90,7 +101,7 @@
 - [x] Connection Timestamps
 - [x] Volume Serial Number
 
-# Other To-Do's:
+## Other To-Do's
 - [ ] Error Handling
 - [ ] License Stuff
 - [ ] Tutorial in README.md
