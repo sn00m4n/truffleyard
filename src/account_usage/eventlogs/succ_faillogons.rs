@@ -26,8 +26,8 @@ struct LogonEntry {
     data: Value,
 }
 
-// function used in main to get all the data (might refactor)
-pub fn sys_evtx_logons_data(input: &String, outfile: String) -> Result<(), Error> {
+// function to get all the data (might refactor)
+pub fn sec_evtx_logons_data(input: &str, outpath: &str) -> Result<(), Error> {
     let mut parser = parse_evtx(input).unwrap();
     let mut logons_list: Vec<LogonEntry> = Vec::new();
     for record in parser.records() {
@@ -40,7 +40,7 @@ pub fn sys_evtx_logons_data(input: &String, outfile: String) -> Result<(), Error
         // Logon Event ID 4624 -> successful logon
         if event_id == 4624 {
             for data in event.event_data.unwrap().events {
-                if data.name == logon_type {
+                if data.name == Some(logon_type.clone()) {
                     let logontype = data.value.unwrap();
                     // sort by logon types
                     // Logon via console
@@ -275,14 +275,15 @@ pub fn sys_evtx_logons_data(input: &String, outfile: String) -> Result<(), Error
         }
     }
 
-    // ceck if list is empty
+    // check if list is empty
     if logons_list.is_empty() {
-        println!("Nothing to do :(");
+        println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
 
     // write output in ndjson
-    write_json_lines(outfile, logons_list).expect("failed to write .json!");
-    println!("Done! :)");
+    write_json_lines(format!("{outpath}/evtx_logons.json"), logons_list)
+        .expect("failed to write .json!");
+    //println!("Done! :)");
     Ok(())
 }

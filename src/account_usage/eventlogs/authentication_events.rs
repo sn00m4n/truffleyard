@@ -1,6 +1,8 @@
 // "Authentication Events identify where authentication of credentials occurred.
 // They can be particularly useful when tracking local vs. domain account usage" - SANS Poster Windows Forensics, Authentication Events
 
+// Security.evtx
+
 use chrono::{DateTime, Utc};
 use common::{parse_evtx, Event};
 use serde::Serialize;
@@ -20,7 +22,7 @@ struct AuthenticationEventEntry {
     data: Value,
 }
 
-pub fn sec_evtx_authentication_events_data(input: &String, outfile: String) -> Result<(), Error> {
+pub fn sec_evtx_authentication_events_data(input: &str, outpath: &str) -> Result<(), Error> {
     let mut parser = parse_evtx(input).unwrap();
     let mut authentication_event_list: Vec<AuthenticationEventEntry> = Vec::new();
     for record in parser.records() {
@@ -85,11 +87,15 @@ pub fn sec_evtx_authentication_events_data(input: &String, outfile: String) -> R
     }
     // check if list is empty so it doesnt create an empty file
     if authentication_event_list.is_empty() {
-        println!("Nothing to do :(");
+        println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
     // write json file in ndjson format
-    write_json_lines(outfile, authentication_event_list).expect("failed to write .json!");
-    println!("Done! :)");
+    write_json_lines(
+        format!("{outpath}/evtx_authentication_events.json"),
+        authentication_event_list,
+    )
+    .expect("failed to write .json!");
+    //println!("Done! :)");
     Ok(())
 }

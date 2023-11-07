@@ -1,7 +1,11 @@
+// SYSTEM hive
+// "It is the last time the system was shutdown. On Windows XP, the number of shutdowns is also recorded." - SANS Windows Forensic Analysis Poster
+// Note: this code does not implement the Win XP artifact (yet)
+
 use std::fs::File;
 use std::io::Read;
 
-use chrono::{DateTime, NaiveDateTime, Utc};
+use chrono::{DateTime, Utc};
 use common::convert_win_time;
 use nt_hive::Hive;
 use serde::Serialize;
@@ -15,7 +19,7 @@ pub struct ShutdownTime {
     shutdown_time: DateTime<Utc>,
 }
 
-pub fn get_shutdown_time(reg_file: &String, out_json: String) -> Result<(), Error> {
+pub fn get_shutdown_time(reg_file: &str, outpath: &str) -> Result<(), Error> {
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -53,9 +57,10 @@ pub fn get_shutdown_time(reg_file: &String, out_json: String) -> Result<(), Erro
     times.push(shuttime);
 
     if times.is_empty() {
-        println!("Nothing to do.");
+        println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
-    write_json_lines(out_json, &times).expect("failed to write json:(");
+    write_json_lines(format!("{outpath}/reg_shutdown_times.json"), &times)
+        .expect("failed to write json:(");
     Ok(())
 }

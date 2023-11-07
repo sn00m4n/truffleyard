@@ -40,11 +40,7 @@ struct Device {
     friendly_name: String,
 }
 
-pub fn sof_get_device_data(
-    reg_file: &String,
-    vidpid_json: &String,
-    outfile: String,
-) -> Result<(), Error> {
+pub fn sof_get_device_data(reg_file: &str, vidpid_json: &str, outpath: &str) -> Result<(), Error> {
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -279,9 +275,10 @@ pub fn sof_get_device_data(
         }
     }
     if volnames.is_empty() {
-        println!("Nothing to do.");
+        println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
-    write_json_lines(outfile, volnames).expect("failed to write .json!");
+    write_json_lines(format!("{outpath}/reg_volume_name.json"), volnames)
+        .expect("failed to write .json!");
     Ok(())
 }

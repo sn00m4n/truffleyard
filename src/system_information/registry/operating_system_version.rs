@@ -1,3 +1,6 @@
+// SYSTEM hive
+// "This determines system type, version, build number and installation dates for previous updates." - SANS Windows Forensic Analysis Poster
+
 use std::fs::File;
 use std::io::Read;
 
@@ -25,7 +28,7 @@ struct SourceOSEntry {
     software_type: String,
 }
 
-pub fn get_os_updates(reg_file: &String, out_json: String) -> Result<(), Error> {
+pub fn get_os_updates(reg_file: &str, outpath: &str) -> Result<(), Error> {
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -131,10 +134,14 @@ pub fn get_os_updates(reg_file: &String, out_json: String) -> Result<(), Error> 
         }
     }
     if sourceos_entries.is_empty() {
-        println!("Nothing to do.");
+        println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
 
-    write_json_lines(&out_json, &sourceos_entries).expect("failed to write .json");
+    write_json_lines(
+        format!("{outpath}/reg_old_os_versions.json"),
+        &sourceos_entries,
+    )
+    .expect("failed to write .json");
     Ok(())
 }

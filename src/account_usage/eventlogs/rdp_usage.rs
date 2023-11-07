@@ -2,7 +2,7 @@
 
 use chrono::{DateTime, Utc};
 use common::{parse_evtx, Event, Name, OuterName};
-use serde::{Deserializer, Serialize};
+use serde::Serialize;
 use serde_json::Value;
 use serde_jsonlines::write_json_lines;
 use xmltojson::to_json;
@@ -21,7 +21,7 @@ struct RDPEventEntry {
 }
 
 // function to get data
-pub fn sec_evtx_rdp_usage_data(input: &String, outfile: String) -> Result<(), Error> {
+pub fn sec_evtx_rdp_usage_data(input: &str, outpath: &str) -> Result<(), Error> {
     let mut parser = parse_evtx(input).unwrap();
     let mut rdp_usage_list: Vec<RDPEventEntry> = Vec::new();
 
@@ -35,7 +35,7 @@ pub fn sec_evtx_rdp_usage_data(input: &String, outfile: String) -> Result<(), Er
         // event id 4624 & logon type 10 -> successful rdp logon
         if event_id == 4624 {
             for data in event.event_data.unwrap().events {
-                if data.name == logon_type {
+                if data.name == Some(logon_type.clone()) {
                     let test = data.value.unwrap();
                     if test.eq("10") {
                         let data = record.clone().data;
@@ -86,12 +86,13 @@ pub fn sec_evtx_rdp_usage_data(input: &String, outfile: String) -> Result<(), Er
     }
     // check if list is empty
     if rdp_usage_list.is_empty() {
-        println!("Nothing to do :(");
+        println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
 
     //write outfile as ndjson
-    write_json_lines(outfile, rdp_usage_list).expect("failed to write .json!");
-    println!("Done! :)");
+    write_json_lines(format!("{outpath}/evtx_rdp_usage.json"), rdp_usage_list)
+        .expect("failed to write .json!");
+    //println!("Done! :)");
     Ok(())
 }

@@ -1,3 +1,6 @@
+//SOFTWARE
+// "This determines the operating system type, version, build number and installation dates for the current installation." - SANS Windows Forensic Analysis Poster
+
 use std::fs::File;
 use std::io::Read;
 
@@ -25,7 +28,7 @@ struct SourceOSEntry {
     software_type: String,
 }
 
-pub fn get_current_os_version(reg_file: &String, out_json: String) -> Result<(), Error> {
+pub fn get_current_os_version(reg_file: &str, outpath: &str) -> Result<(), Error> {
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -127,10 +130,11 @@ pub fn get_current_os_version(reg_file: &String, out_json: String) -> Result<(),
     os_entry.push(source_os_entry);
 
     if os_entry.is_empty() {
-        println!("Nothing to do.");
+        println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
 
-    write_json_lines(&out_json, &os_entry).expect("failed to write .json");
+    write_json_lines(format!("{outpath}/reg_current_version.json"), &os_entry)
+        .expect("failed to write .json");
     Ok(())
 }

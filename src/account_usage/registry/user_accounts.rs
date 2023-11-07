@@ -21,7 +21,7 @@ struct ProfileListEntry {
 }
 
 // retrieve data about users
-pub fn get_profile_list(reg_file: &String, out_json: String) -> Result<(), Error> {
+pub fn get_profile_list(reg_file: &str, outpath: &str) -> Result<(), Error> {
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -59,10 +59,15 @@ pub fn get_profile_list(reg_file: &String, out_json: String) -> Result<(), Error
     }
 
     if profile_list_list.is_empty() {
-        println!("Nothing to do :(");
+        println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
 
-    write_json_lines(out_json, &profile_list_list).expect("failed to write .json");
+    // println!("{outpath}/useraccounts.json");
+    write_json_lines(
+        format!("{outpath}/reg_useraccounts.json"),
+        &profile_list_list,
+    )
+    .expect("failed to write .json");
     Ok(())
 }

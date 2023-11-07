@@ -2,8 +2,6 @@
 members = [
     ".",
     "./parser",
-    "nt-hive",
-    "forensic-tools"
 ]
 
 [package]
@@ -17,10 +15,9 @@ edition = "2021"
 
 # own libraries
 common = { version = "0.1.0", path = "./common" }
-forensic-tools = { version = "0.1.0", path = "forensic-tools"}
 
-# hive
-nt-hive = { version = "~0.3", path = "nt-hive" }
+# hive (forked from https://github.com/ColinFinck/nt-hive, made some minor adjustments to fit this project)
+nt-hive = { version = "*", git = "https://github.com/sn00m4n/nthive", branch = "test" }
 
 # clap
 clap = { version = "~4", features = ["derive"] }

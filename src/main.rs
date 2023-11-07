@@ -4,48 +4,187 @@ mod browser_activity;
 mod cloud_storage;
 mod deleted_items_file_existence;
 pub mod errors;
+mod eventlogs;
 mod external_device_usb_usage;
 mod file_folder_opening;
 mod network_activity_physical_location;
+mod registry;
 mod system_information;
 mod tests;
 
-use std::env;
+use std::error::Error;
+use std::fmt::{Display, Formatter};
 
-use clap::{Parser, Subcommand};
-use common::{find_security_evtx, find_software_hive, find_system_evtx, find_system_hive};
+use clap::{Parser, Subcommand, ValueEnum};
+use common::make_path;
 
-use crate::account_usage::registry::user_accounts::get_profile_list;
-use crate::tests::test::testing;
-
-/*#[derive(Subcommand)]
-enum Sub {
-    /// get registry data only
-    Registry, /*{
-                   #[arg(default_value_t = String::from("testfiles/"))]
-                   output_filepath: String,
-              },*/
-}*/
+use crate::account_usage::eventlogs_only::get_accountusage_eventlog_data;
+use crate::account_usage::registry_only::get_accountusage_registry_data;
+use crate::eventlogs::get_eventlog_data;
+use crate::external_device_usb_usage::registry_only::get_externaldevice_registry_data;
+use crate::registry::get_registry_data;
+use crate::system_information::registry_only::get_systeminfo_registry_data;
+//use crate::tests::test::testing;
 
 #[derive(Parser)]
 #[command(
     author = "ally",
     version = "0.1",
-    about = "Hopefully once nice tool for forensics in the making :)"
+    about = "Hopefully soon a nice tool for forensics :)"
 )]
 struct Cli {
-    ///path where mounted image is located
+    /// path where mounted image is located
     #[arg(short)]
-    filepath_image: String,
-    /*#[clap(subcommand)]
-    subcommand: Sub,*/
+    image_path: String,
+    /// output path, default is working directory
+    #[arg(short, default_value = ".")]
+    output_path: String,
+    /// name of result-folder, default is "results"
+    #[arg(short, long, default_value = "results")]
+    folder_name: String,
+    /// specifying Subcommands
+    #[clap(subcommand)]
+    command: Commands,
 }
 
-fn main() {
-    //testing("testfiles2/SYSTEM_clean")
-    /* let cli = Cli::parse();
-    let sof_file = find_software_hive(&cli.filepath_image).unwrap_or("file not found".to_string());
+/// The different Processing Modes
+#[derive(ValueEnum, Copy, Clone)]
+enum ProcessingMode {
+    RegistryOnly,
+    EventLogOnly,
+    All,
+}
+// implementing Display for Processing Modes, so it shows up in CLI
+impl Display for ProcessingMode {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ProcessingMode::RegistryOnly => write!(f, "registry-only"),
+            ProcessingMode::EventLogOnly => write!(f, "eventlog-only"),
+            ProcessingMode::All => write!(f, "all"),
+        }
+    }
+}
 
-    get_profile_list(&sof_file, "testfiles/profile_list.json".to_string())
-        .expect("if you see this, i messed up"); */
+/// The different subcommands implemented so far
+#[derive(Subcommand)]
+enum Commands {
+    /// Analyzes everything (that's implemented so far)
+    All,
+    /// Analyzes only Registry artifacts (that are implemented so far)
+    Registry,
+    /// Analyzes only EventLog artifacts (that are implemented so far)
+    EventLogs,
+    /// Analyzes Account Usage artifacts
+    AccountUsage {
+        #[arg(short, default_value_t = ProcessingMode::All)]
+        mode: ProcessingMode,
+    },
+    /// Analyzes External Devices and USB usage artifacts
+    ExternalDevices {
+        #[arg(short, default_value_t = ProcessingMode::All)]
+        mode: ProcessingMode,
+    },
+    /// Analyzes System Information artifacts
+    SystemInformation {
+        #[arg(short, default_value_t = ProcessingMode::All)]
+        mode: ProcessingMode,
+    },
+    // to be implemented:
+    /* ApplicationExecution, BrowserActivity, CloudStorage, DeletedItems, FileFolderOpening, NetworkActivity*/
+}
+
+fn main() -> Result<(), Box<dyn Error>> {
+    let cli = Cli::parse();
+    match cli.command {
+        Commands::All => {
+            let out_put_path = make_path(&cli.output_path, &cli.folder_name).unwrap();
+            get_eventlog_data(&cli.image_path, &out_put_path)
+                .expect("Failed to get EventLog Data!");
+            get_registry_data(&cli.image_path, &out_put_path)
+                .expect("Failed to get Registry Data!");
+            print!("Done!");
+            Ok(())
+        }
+        Commands::Registry => {
+            let out_put_path = make_path(&cli.output_path, &cli.folder_name).unwrap();
+            get_registry_data(&cli.image_path, &out_put_path)
+                .expect("Failed to get Registry Data!");
+            print!("Done!");
+            Ok(())
+        }
+        Commands::EventLogs => {
+            let out_put_path = make_path(&cli.output_path, &cli.folder_name).unwrap();
+            get_eventlog_data(&cli.image_path, &out_put_path)
+                .expect("Failed to get EventLog Data!");
+            print!("Done!");
+            Ok(())
+        }
+        Commands::AccountUsage { mode } => match mode {
+            ProcessingMode::RegistryOnly => {
+                let out_put_path = make_path(&cli.output_path, &cli.folder_name).unwrap();
+                get_accountusage_registry_data(&cli.image_path, &out_put_path)
+                    .expect("Failed to get Registry Data for Account Usage!");
+                print!("Done!");
+                Ok(())
+            }
+            ProcessingMode::EventLogOnly => {
+                let out_put_path = make_path(&cli.output_path, &cli.folder_name).unwrap();
+                get_accountusage_eventlog_data(&cli.image_path, &out_put_path)
+                    .expect("Failed to get EventLog Data for Account Usage!");
+                print!("Done!");
+                Ok(())
+            }
+            ProcessingMode::All => {
+                let out_put_path = make_path(&cli.output_path, &cli.folder_name).unwrap();
+                get_accountusage_eventlog_data(&cli.image_path, &out_put_path)
+                    .expect("Failed to get EventLog Data for Account Usage!");
+                get_accountusage_registry_data(&cli.image_path, &out_put_path)
+                    .expect("Failed to get Registry Data for Account Usage!");
+                print!("Done!");
+                Ok(())
+            }
+        },
+        Commands::ExternalDevices { mode } => match mode {
+            ProcessingMode::RegistryOnly => {
+                let out_put_path = make_path(&cli.output_path, &cli.folder_name).unwrap();
+                get_externaldevice_registry_data(&cli.image_path, &out_put_path)
+                    .expect("Failed to get Registry Data for External Devices!");
+                print!("Done!");
+                Ok(())
+            }
+            ProcessingMode::EventLogOnly => {
+                println!("Not implemented yet!");
+                Ok(())
+            }
+            ProcessingMode::All => {
+                println!("EventLogs are not implemented yet, will continue with Registry Only!");
+                let out_put_path = make_path(&cli.output_path, &cli.folder_name).unwrap();
+                get_externaldevice_registry_data(&cli.image_path, &out_put_path)
+                    .expect("Failed to get Registry Data for External Devices!");
+                print!("Done!");
+                Ok(())
+            }
+        },
+        Commands::SystemInformation { mode } => match mode {
+            ProcessingMode::RegistryOnly => {
+                let out_put_path = make_path(&cli.output_path, &cli.folder_name).unwrap();
+                get_systeminfo_registry_data(&cli.image_path, &out_put_path)
+                    .expect("Failed to get Registry Data for System Information!");
+                print!("Done!");
+                Ok(())
+            }
+            ProcessingMode::EventLogOnly => {
+                println!("Not implemented yet!");
+                Ok(())
+            }
+            ProcessingMode::All => {
+                println!("EventLogs are not implemented yet, will continue with Registry Only!");
+                let out_put_path = make_path(&cli.output_path, &cli.folder_name).unwrap();
+                get_systeminfo_registry_data(&cli.image_path, &out_put_path)
+                    .expect("Failed to get Registry Data for System Information!");
+                print!("Done!");
+                Ok(())
+            }
+        },
+    }
 }

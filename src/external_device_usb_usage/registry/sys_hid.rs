@@ -23,9 +23,9 @@ struct HdiEntry {
 }
 
 pub fn sys_get_hid_data(
-    reg_file: &String,
-    vidpid_json_path: &String,
-    outpath: String,
+    reg_file: &str,
+    vidpid_json_path: &str,
+    outpath: &str,
 ) -> Result<(), Error> {
     let mut buffer = Vec::new();
     File::open(reg_file)
@@ -222,9 +222,10 @@ pub fn sys_get_hid_data(
         }
     }
     if hdi_entries.is_empty() {
-        println!("Nothing to do.");
+        println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
-    write_json_lines(outpath, &hdi_entries).expect("failed to write .json!");
+    write_json_lines(format!("{outpath}/reg_hid.json"), &hdi_entries)
+        .expect("failed to write .json!");
     Ok(())
 }

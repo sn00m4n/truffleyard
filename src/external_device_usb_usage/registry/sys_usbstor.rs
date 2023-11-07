@@ -28,7 +28,7 @@ struct UsbStorEntry {
 static RE: Lazy<Regex> =
     Lazy::new(|| Regex::new("Disk&Ven_(?<man>.*?)&Prod_(?<titl>.*?)&Rev_(?<vers>\\S+)").unwrap());
 
-pub fn sys_get_usbstor_data(reg_file: &String, outfile: String) -> Result<(), Error> {
+pub fn sys_get_usbstor_data(reg_file: &str, outpath: &str) -> Result<(), Error> {
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -244,9 +244,10 @@ pub fn sys_get_usbstor_data(reg_file: &String, outfile: String) -> Result<(), Er
         }
     }
     if usbstor_entries.is_empty() {
-        println!("Nothing to do.");
+        println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
-    write_json_lines(outfile, &usbstor_entries).expect("failed to write .json");
+    write_json_lines(format!("{outpath}/reg_usbstor.json"), &usbstor_entries)
+        .expect("failed to write .json");
     Ok(())
 }

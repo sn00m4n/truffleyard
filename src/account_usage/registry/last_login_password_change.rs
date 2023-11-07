@@ -1,5 +1,5 @@
 // "The SAM hive maintains a list of local accounts and associated configuration information" - SANS Windows Forensic Analysis Poster, Last Login and Password Changes
-
+/*
 use std::fs::File;
 use std::io::Read;
 
@@ -24,4 +24,4 @@ pub struct AccountDetails {
 
 pub fn get_account_details(reg_file: &String, out_json: String) -> Result<(), Error> {
     Ok(())
-}
+}*/

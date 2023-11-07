@@ -21,7 +21,8 @@ struct ServiceEventEntry {
 }
 
 // TO-DO!!: clean up code, seperate system & security evtx more clearly!
-pub fn sys_evtx_service_events_data(input: &String, outfile: String) -> Result<(), Error> {
+// Windows 7+
+pub fn sys_evtx_service_events_data(input: &str, outpath: &str) -> Result<(), Error> {
     let mut parser = parse_evtx(input).unwrap();
     let mut service_event_list: Vec<ServiceEventEntry> = Vec::new();
     for record in parser.records() {
@@ -102,17 +103,22 @@ pub fn sys_evtx_service_events_data(input: &String, outfile: String) -> Result<(
 
     // check if list empty
     if service_event_list.is_empty() {
-        println!("Nothing to do :(");
+        println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
 
     // write outfile in ndjson
-    write_json_lines(outfile, service_event_list).expect("failed to write .json!");
-    println!("Done! :)");
+    write_json_lines(
+        format!("{outpath}/evtx_sys_service_events.json"),
+        service_event_list,
+    )
+    .expect("failed to write .json!");
+    //println!("Done! :)");
     Ok(())
 }
 
-pub fn sec_evtx_service_events_data(input: &String, outfile: String) -> Result<(), Error> {
+// Windows 10+
+pub fn sec_evtx_service_events_data(input: &str, outpath: &str) -> Result<(), Error> {
     let mut parser = parse_evtx(input).unwrap();
     let mut service_event_list: Vec<ServiceEventEntry> = Vec::new();
     for record in parser.records() {
@@ -134,10 +140,14 @@ pub fn sec_evtx_service_events_data(input: &String, outfile: String) -> Result<(
         }
     }
     if service_event_list.is_empty() {
-        println!("Nothing to do :(");
+        println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
-    write_json_lines(outfile, service_event_list).expect("failed to write .json!");
-    println!("Done! :)");
+    write_json_lines(
+        format!("{outpath}/evtx_service_events.json"),
+        service_event_list,
+    )
+    .expect("failed to write .json!");
+    //println!("Done! :)");
     Ok(())
 }

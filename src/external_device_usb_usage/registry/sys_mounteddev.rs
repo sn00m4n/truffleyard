@@ -36,7 +36,7 @@ pub struct MountedDevice {
     guid: String,
 }
 
-pub fn sys_get_mounteddev_data(reg_file: &String, outfile: String) -> Result<(), Error> {
+pub fn sys_get_mounteddev_data(reg_file: &str, outpath: &str) -> Result<(), Error> {
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -78,7 +78,7 @@ pub fn sys_get_mounteddev_data(reg_file: &String, outfile: String) -> Result<(),
                     mounted_devices.push(device);
                 }
             } else {
-                let (string, encodingzeugs, invalid_chars) = UTF_16LE.decode(&value_data);
+                let (string, _encodingzeugs, _invalid_chars) = UTF_16LE.decode(&value_data);
                 let string = string.to_string();
                 if string.contains("&Rev_") {
                     let capture = RE.captures(&string).unwrap();
@@ -122,9 +122,13 @@ pub fn sys_get_mounteddev_data(reg_file: &String, outfile: String) -> Result<(),
         }
     }
     if mounted_devices.is_empty() {
-        println!("Nothing to do.");
+        println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
-    write_json_lines(outfile, &mounted_devices).expect("failed to write .json");
+    write_json_lines(
+        format!("{outpath}/reg_mounted_devices.json"),
+        &mounted_devices,
+    )
+    .expect("failed to write .json");
     Ok(())
 }

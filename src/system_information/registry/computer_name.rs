@@ -1,3 +1,6 @@
+// SYSTEM hive
+// "This stores the hostname of the system in the ComputerName Value." - SANS Windows Forensic Analysis Posters
+
 use std::fs::File;
 use std::io::Read;
 
@@ -13,7 +16,7 @@ struct ComputerName {
     computer_name: String,
 }
 
-pub fn get_computer_name(reg_file: &String, out_json: String) -> Result<(), Error> {
+pub fn get_computer_name(reg_file: &str, outpath: &str) -> Result<(), Error> {
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -39,9 +42,10 @@ pub fn get_computer_name(reg_file: &String, out_json: String) -> Result<(), Erro
     let computername = ComputerName { computer_name };
     computers.push(computername);
     if computers.is_empty() {
-        println!("Nothing to do.");
+        println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
-    write_json_lines(out_json, &computers).expect("failed to write json :(");
+    write_json_lines(format!("{outpath}/reg_computer_name.json"), &computers)
+        .expect("failed to write json");
     Ok(())
 }

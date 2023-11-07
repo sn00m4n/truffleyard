@@ -19,7 +19,7 @@ struct VicEntry {
     drive_type: String,
 }
 
-pub fn sof_get_vic_data(reg_file: &String, out_json: String) -> Result<(), Error> {
+pub fn sof_get_vic_data(reg_file: &str, outpath: &str) -> Result<(), Error> {
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -240,9 +240,13 @@ pub fn sof_get_vic_data(reg_file: &String, out_json: String) -> Result<(), Error
     }
 
     if vic_entries.is_empty() {
-        println!("Nothing to do.");
+        println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
-    write_json_lines(&out_json, &vic_entries).expect("failed to write .json");
+    write_json_lines(
+        format!("{outpath}/reg_volume_info_cache.json"),
+        &vic_entries,
+    )
+    .expect("failed to write .json");
     Ok(())
 }
