@@ -1,6 +1,5 @@
 # Overview of what has been done so far (checked off the SANS Windows Forensics Poster)
 
-
 ## Application Execution
 - [ ] Shimcache 
 - [ ] Windows 10 Timeline 
@@ -90,3 +89,8 @@
 - [ ] Shortcut Files 
 - [x] Connection Timestamps
 - [x] Volume Serial Number
+
+# Other To-Do's:
+- [ ] Error Handling
+- [ ] License Stuff
+- [ ] Tutorial in README.md
