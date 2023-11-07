@@ -1,6 +1,4 @@
 ![Truffleyard Logo](images/truffleyard.png)
-# TRUFFLEYARD
-
 
 # forensic automation tool using the SANS Windows Forensic Analysis Poster (for now)
 
