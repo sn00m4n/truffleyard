@@ -14,3 +14,4 @@ forensic-tools/
 src/external_device_usb_usage/eventlogs_only.rs
 src/system_information/eventlogs_only.rs
 results/
+LICENSE
