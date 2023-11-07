@@ -30,7 +30,14 @@ use crate::system_information::registry_only::get_systeminfo_registry_data;
 #[command(
     author = "ally",
     version = "0.1",
-    about = "Hopefully soon a nice tool for forensics :)"
+    about = "
+ _____            __  __ _                          _ 
+|_   _| __ _   _ / _|/ _| | ___ _   _  __ _ _ __ __| |
+  | || '__| | | | |_| |_| |/ _ \\ | | |/ _` | '__/ _` |
+  | || |  | |_| |  _|  _| |  __/ |_| | (_| | | | (_| |
+  |_||_|   \\__,_|_| |_| |_|\\___|\\__, |\\__,_|_|  \\__,_|
+                                |___/                 
+                                "
 )]
 struct Cli {
     /// path where mounted image is located
