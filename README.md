@@ -1,4 +1,4 @@
-//<img align="right" src="images/truffleyard.svg">
+<img src="images/truffleyard.svg"  alt="Truffleyard Logo" "right"/>
 # TRUFFLEYARD
 
 
