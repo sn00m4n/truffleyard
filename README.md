@@ -1,4 +1,4 @@
-<img src="images/truffleyard.svg"  alt="Truffleyard Logo" "right"/>
+![Truffleyard Logo](images/truffleyard.svg)
 # TRUFFLEYARD
 
 
