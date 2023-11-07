@@ -1,4 +1,4 @@
-![Truffleyard Logo](images/truffleyard.svg)
+![Truffleyard Logo](images/truffleyard.png)
 # TRUFFLEYARD
 
 
