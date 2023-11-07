@@ -1,4 +1,6 @@
+//<img align="right" src="images/truffleyard.svg">
 # TRUFFLEYARD
+
 
 # forensic automation tool using the SANS Windows Forensic Analysis Poster (for now)
 
@@ -8,5 +10,4 @@ for now, this works only if the image is mounted in filesystem (read-only) using
 2. sudo mount /mountpoint_losetup /target_mountpoint
 
 tool uses the target_mountpoint as argument for now (will be changed eventually)
-
 
