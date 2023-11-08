@@ -28,6 +28,7 @@ pub fn sys_get_usb_data(
     vidpid_json_path: &str,
     outpath: &str,
 ) -> Result<(), Error> {
+    print!("Working on USB: ");
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -316,5 +317,6 @@ pub fn sys_get_usb_data(
     }
     write_json_lines(format!("{outpath}/reg_usb.json"), &usb_entries)
         .expect("failed to write .json");
+    println!("Done here!");
     Ok(())
 }

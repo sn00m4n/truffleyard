@@ -20,6 +20,7 @@ pub struct ShutdownTime {
 }
 
 pub fn get_shutdown_time(reg_file: &str, outpath: &str) -> Result<(), Error> {
+    print!("Working on Last Shutdown Time: ");
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -62,5 +63,6 @@ pub fn get_shutdown_time(reg_file: &str, outpath: &str) -> Result<(), Error> {
     }
     write_json_lines(format!("{outpath}/reg_shutdown_times.json"), &times)
         .expect("failed to write json:(");
+    println!("Done here!");
     Ok(())
 }

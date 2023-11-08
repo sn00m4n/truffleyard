@@ -29,6 +29,7 @@ struct SourceOSEntry {
 }
 
 pub fn get_current_os_version(reg_file: &str, outpath: &str) -> Result<(), Error> {
+    print!("Working on Current OS Version: ");
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -136,5 +137,6 @@ pub fn get_current_os_version(reg_file: &str, outpath: &str) -> Result<(), Error
 
     write_json_lines(format!("{outpath}/reg_current_version.json"), &os_entry)
         .expect("failed to write .json");
+    println!("Done here!");
     Ok(())
 }

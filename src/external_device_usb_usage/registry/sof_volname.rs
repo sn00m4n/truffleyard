@@ -1,16 +1,18 @@
+use std::fs;
 use std::fs::{read_to_string, File};
-use std::io::Read;
+use std::io::{Read, Write};
 
+use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 use common::{convert_to_int, convert_win_time, VendorList};
 use nt_hive::Hive;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Serialize;
+use serde_json::from_str;
 use serde_jsonlines::write_json_lines;
 
-use crate::errors::Error;
-
+//use crate::errors::Error;
 // drive letter and device from SOFTWARE hive
 
 //regional express
@@ -40,7 +42,8 @@ struct Device {
     friendly_name: String,
 }
 
-pub fn sof_get_device_data(reg_file: &str, vidpid_json: &str, outpath: &str) -> Result<(), Error> {
+pub fn sof_get_device_data(reg_file: &str, vidpid_json: &str, outpath: &str) -> Result<()> {
+    print!("Working on Volume Names: ");
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -48,8 +51,7 @@ pub fn sof_get_device_data(reg_file: &str, vidpid_json: &str, outpath: &str) -> 
         .unwrap();
 
     let data = read_to_string(vidpid_json).unwrap();
-    let vendors: VendorList = serde_json::from_str(&data).unwrap();
-
+    let vendors: VendorList = from_str(&data).context("Failed at vendorlist again")?;
     let hive = Hive::without_validation(buffer.as_ref()).unwrap();
     let root_key_node = hive.root_key_node().unwrap();
     let sub_key_node = root_key_node
@@ -280,5 +282,6 @@ pub fn sof_get_device_data(reg_file: &str, vidpid_json: &str, outpath: &str) -> 
     }
     write_json_lines(format!("{outpath}/reg_volume_name.json"), volnames)
         .expect("failed to write .json!");
+    println!("Done here!");
     Ok(())
 }

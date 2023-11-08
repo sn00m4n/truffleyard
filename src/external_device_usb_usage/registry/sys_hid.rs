@@ -27,6 +27,7 @@ pub fn sys_get_hid_data(
     vidpid_json_path: &str,
     outpath: &str,
 ) -> Result<(), Error> {
+    print!("Working on HID: ");
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -227,5 +228,6 @@ pub fn sys_get_hid_data(
     }
     write_json_lines(format!("{outpath}/reg_hid.json"), &hdi_entries)
         .expect("failed to write .json!");
+    println!("Done here!");
     Ok(())
 }

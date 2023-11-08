@@ -20,6 +20,7 @@ struct VicEntry {
 }
 
 pub fn sof_get_vic_data(reg_file: &str, outpath: &str) -> Result<(), Error> {
+    print!("Working on Volume Info Cache: ");
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -248,5 +249,6 @@ pub fn sof_get_vic_data(reg_file: &str, outpath: &str) -> Result<(), Error> {
         &vic_entries,
     )
     .expect("failed to write .json");
+    println!("Done here!");
     Ok(())
 }

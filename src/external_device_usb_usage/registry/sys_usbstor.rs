@@ -29,6 +29,7 @@ static RE: Lazy<Regex> =
     Lazy::new(|| Regex::new("Disk&Ven_(?<man>.*?)&Prod_(?<titl>.*?)&Rev_(?<vers>\\S+)").unwrap());
 
 pub fn sys_get_usbstor_data(reg_file: &str, outpath: &str) -> Result<(), Error> {
+    print!("Working on USBSTOR: ");
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -249,5 +250,6 @@ pub fn sys_get_usbstor_data(reg_file: &str, outpath: &str) -> Result<(), Error> 
     }
     write_json_lines(format!("{outpath}/reg_usbstor.json"), &usbstor_entries)
         .expect("failed to write .json");
+    println!("Done here!");
     Ok(())
 }

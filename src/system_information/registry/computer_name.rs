@@ -17,6 +17,7 @@ struct ComputerName {
 }
 
 pub fn get_computer_name(reg_file: &str, outpath: &str) -> Result<(), Error> {
+    print!("Working on Computer Name: ");
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -47,5 +48,6 @@ pub fn get_computer_name(reg_file: &str, outpath: &str) -> Result<(), Error> {
     }
     write_json_lines(format!("{outpath}/reg_computer_name.json"), &computers)
         .expect("failed to write json");
+    println!("Done here!");
     Ok(())
 }

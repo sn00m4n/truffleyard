@@ -22,6 +22,7 @@ struct ProfileListEntry {
 
 // retrieve data about users
 pub fn get_profile_list(reg_file: &str, outpath: &str) -> Result<(), Error> {
+    print!("Working on User Accounts: ");
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -69,5 +70,6 @@ pub fn get_profile_list(reg_file: &str, outpath: &str) -> Result<(), Error> {
         &profile_list_list,
     )
     .expect("failed to write .json");
+    println!("Done here!");
     Ok(())
 }

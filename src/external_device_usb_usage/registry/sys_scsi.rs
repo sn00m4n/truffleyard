@@ -26,6 +26,7 @@ static RE: Lazy<Regex> =
     Lazy::new(|| Regex::new("Disk&Ven_(?<man>.*?)&Prod_(?<titl>.*?\\S*)").unwrap());
 
 pub fn sys_get_scsi_data(reg_file: &str, outpath: &str) -> Result<(), Error> {
+    print!("Working on SCSI: ");
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -187,5 +188,6 @@ pub fn sys_get_scsi_data(reg_file: &str, outpath: &str) -> Result<(), Error> {
     }
     write_json_lines(format!("{outpath}/reg_scsi.json"), &scsi_entries)
         .expect("failed to write .json");
+    println!("Done here!");
     Ok(())
 }

@@ -28,6 +28,7 @@ struct LogonEntry {
 
 // function to get all the data (might refactor)
 pub fn sec_evtx_logons_data(input: &str, outpath: &str) -> Result<(), Error> {
+    print!("Working on Logons: ");
     let mut parser = parse_evtx(input).unwrap();
     let mut logons_list: Vec<LogonEntry> = Vec::new();
     for record in parser.records() {
@@ -284,6 +285,6 @@ pub fn sec_evtx_logons_data(input: &str, outpath: &str) -> Result<(), Error> {
     // write output in ndjson
     write_json_lines(format!("{outpath}/evtx_logons.json"), logons_list)
         .expect("failed to write .json!");
-    //println!("Done! :)");
+    println!("Done here!");
     Ok(())
 }

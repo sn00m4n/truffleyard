@@ -1,5 +1,6 @@
 // "track rdp logons and session reconnections to target machines" - SANS Poster Windows Forensics
 
+use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 use common::{parse_evtx, Event, Name, OuterName};
 use serde::Serialize;
@@ -7,8 +8,7 @@ use serde_json::Value;
 use serde_jsonlines::write_json_lines;
 use xmltojson::to_json;
 use {serde_xml_rs, xmltojson};
-
-use crate::errors::Error;
+//use crate::errors::Error;
 
 #[derive(Debug, Serialize)]
 struct RDPEventEntry {
@@ -21,12 +21,13 @@ struct RDPEventEntry {
 }
 
 // function to get data
-pub fn sec_evtx_rdp_usage_data(input: &str, outpath: &str) -> Result<(), Error> {
-    let mut parser = parse_evtx(input).unwrap();
+pub fn sec_evtx_rdp_usage_data(input: &str, outpath: &str) -> Result<()> {
+    print!("Working on RDP Usage: ");
+    let mut parser = parse_evtx(input).context("Failed to parse evtx!")?;
     let mut rdp_usage_list: Vec<RDPEventEntry> = Vec::new();
 
     for record in parser.records() {
-        let record = record.unwrap();
+        let record = record.context("Failed to get record!")?;
         let event: Event = serde_xml_rs::from_str(&record.data).unwrap();
 
         let event_id = event.system.event_id;
@@ -93,6 +94,6 @@ pub fn sec_evtx_rdp_usage_data(input: &str, outpath: &str) -> Result<(), Error> 
     //write outfile as ndjson
     write_json_lines(format!("{outpath}/evtx_rdp_usage.json"), rdp_usage_list)
         .expect("failed to write .json!");
-    //println!("Done! :)");
+    println!("Done here!");
     Ok(())
 }

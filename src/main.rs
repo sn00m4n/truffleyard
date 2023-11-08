@@ -12,9 +12,10 @@ mod registry;
 mod system_information;
 mod tests;
 
-use std::error::Error;
+//use std::error::Error;
 use std::fmt::{Display, Formatter};
 
+use anyhow::{Context, Result};
 use clap::{Parser, Subcommand, ValueEnum};
 use common::make_path;
 
@@ -100,96 +101,106 @@ enum Commands {
     /* ApplicationExecution, BrowserActivity, CloudStorage, DeletedItems, FileFolderOpening, NetworkActivity*/
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<()> {
     let cli = Cli::parse();
     match cli.command {
         Commands::All => {
-            let out_put_path = make_path(&cli.output_path, &cli.folder_name).unwrap();
+            let out_put_path = make_path(&cli.output_path, &cli.folder_name)
+                .context("Failed to create directory!")?;
             get_eventlog_data(&cli.image_path, &out_put_path)
-                .expect("Failed to get EventLog Data!");
+                .context("Failed to get EventLog Data!")?;
             get_registry_data(&cli.image_path, &out_put_path)
-                .expect("Failed to get Registry Data!");
-            print!("Done!");
+                .context("Failed to get Registry Data!")?;
+            println!("All done!");
             Ok(())
         }
         Commands::Registry => {
-            let out_put_path = make_path(&cli.output_path, &cli.folder_name).unwrap();
+            let out_put_path = make_path(&cli.output_path, &cli.folder_name)
+                .context("Failed to create directory!")?;
             get_registry_data(&cli.image_path, &out_put_path)
-                .expect("Failed to get Registry Data!");
-            print!("Done!");
+                .context("Failed to get Registry Data!")?;
+            println!("All done!");
             Ok(())
         }
         Commands::EventLogs => {
-            let out_put_path = make_path(&cli.output_path, &cli.folder_name).unwrap();
+            let out_put_path = make_path(&cli.output_path, &cli.folder_name)
+                .context("Failed to create directory!")?;
             get_eventlog_data(&cli.image_path, &out_put_path)
-                .expect("Failed to get EventLog Data!");
-            print!("Done!");
+                .context("Failed to get EventLog Data!")?;
+            println!("All done!");
             Ok(())
         }
         Commands::AccountUsage { mode } => match mode {
             ProcessingMode::RegistryOnly => {
-                let out_put_path = make_path(&cli.output_path, &cli.folder_name).unwrap();
+                let out_put_path = make_path(&cli.output_path, &cli.folder_name)
+                    .context("Failed to create directory!")?;
                 get_accountusage_registry_data(&cli.image_path, &out_put_path)
-                    .expect("Failed to get Registry Data for Account Usage!");
-                print!("Done!");
+                    .context("Failed to get Registry Data for Account Usage!")?;
+                println!("All done!");
                 Ok(())
             }
             ProcessingMode::EventLogOnly => {
-                let out_put_path = make_path(&cli.output_path, &cli.folder_name).unwrap();
+                let out_put_path = make_path(&cli.output_path, &cli.folder_name)
+                    .context("Failed to create directory!")?;
                 get_accountusage_eventlog_data(&cli.image_path, &out_put_path)
-                    .expect("Failed to get EventLog Data for Account Usage!");
-                print!("Done!");
+                    .context("Failed to get EventLog Data for Account Usage!")?;
+                println!("All done!");
                 Ok(())
             }
             ProcessingMode::All => {
-                let out_put_path = make_path(&cli.output_path, &cli.folder_name).unwrap();
+                let out_put_path = make_path(&cli.output_path, &cli.folder_name)
+                    .context("Failed to create directory!")?;
                 get_accountusage_eventlog_data(&cli.image_path, &out_put_path)
-                    .expect("Failed to get EventLog Data for Account Usage!");
+                    .context("Failed to get EventLog Data for Account Usage!")?;
                 get_accountusage_registry_data(&cli.image_path, &out_put_path)
-                    .expect("Failed to get Registry Data for Account Usage!");
-                print!("Done!");
+                    .context("Failed to get Registry Data for Account Usage!")?;
+                println!("All done!");
                 Ok(())
             }
         },
         Commands::ExternalDevices { mode } => match mode {
             ProcessingMode::RegistryOnly => {
-                let out_put_path = make_path(&cli.output_path, &cli.folder_name).unwrap();
+                let out_put_path = make_path(&cli.output_path, &cli.folder_name)
+                    .context("Failed to create directory!")?;
                 get_externaldevice_registry_data(&cli.image_path, &out_put_path)
-                    .expect("Failed to get Registry Data for External Devices!");
-                print!("Done!");
+                    .context("Failed to get Registry Data for External Devices!")?;
+                println!("All done!");
                 Ok(())
             }
             ProcessingMode::EventLogOnly => {
-                println!("Not implemented yet!");
+                println!("Sorry, not implemented yet!");
                 Ok(())
             }
             ProcessingMode::All => {
                 println!("EventLogs are not implemented yet, will continue with Registry Only!");
-                let out_put_path = make_path(&cli.output_path, &cli.folder_name).unwrap();
+                let out_put_path = make_path(&cli.output_path, &cli.folder_name)
+                    .context("Failed to create directory!")?;
                 get_externaldevice_registry_data(&cli.image_path, &out_put_path)
-                    .expect("Failed to get Registry Data for External Devices!");
-                print!("Done!");
+                    .context("Failed to get Registry Data for External Devices!")?;
+                println!("All done!");
                 Ok(())
             }
         },
         Commands::SystemInformation { mode } => match mode {
             ProcessingMode::RegistryOnly => {
-                let out_put_path = make_path(&cli.output_path, &cli.folder_name).unwrap();
+                let out_put_path = make_path(&cli.output_path, &cli.folder_name)
+                    .context("Failed to create directory!")?;
                 get_systeminfo_registry_data(&cli.image_path, &out_put_path)
-                    .expect("Failed to get Registry Data for System Information!");
-                print!("Done!");
+                    .context("Failed to get Registry Data for System Information!")?;
+                println!("All done!");
                 Ok(())
             }
             ProcessingMode::EventLogOnly => {
-                println!("Not implemented yet!");
+                println!("Sorry, not implemented yet!");
                 Ok(())
             }
             ProcessingMode::All => {
                 println!("EventLogs are not implemented yet, will continue with Registry Only!");
-                let out_put_path = make_path(&cli.output_path, &cli.folder_name).unwrap();
+                let out_put_path = make_path(&cli.output_path, &cli.folder_name)
+                    .context("Failed to create directory!")?;
                 get_systeminfo_registry_data(&cli.image_path, &out_put_path)
-                    .expect("Failed to get Registry Data for System Information!");
-                print!("Done!");
+                    .context("Failed to get Registry Data for System Information!")?;
+                println!("All done!");
                 Ok(())
             }
         },

@@ -37,6 +37,7 @@ pub struct MountedDevice {
 }
 
 pub fn sys_get_mounteddev_data(reg_file: &str, outpath: &str) -> Result<(), Error> {
+    print!("Working on Mounted Devices: ");
     let mut buffer = Vec::new();
     File::open(reg_file)
         .unwrap()
@@ -130,5 +131,6 @@ pub fn sys_get_mounteddev_data(reg_file: &str, outpath: &str) -> Result<(), Erro
         &mounted_devices,
     )
     .expect("failed to write .json");
+    println!("Done here!");
     Ok(())
 }

@@ -23,6 +23,7 @@ struct ServiceEventEntry {
 // TO-DO!!: clean up code, seperate system & security evtx more clearly!
 // Windows 7+
 pub fn sys_evtx_service_events_data(input: &str, outpath: &str) -> Result<(), Error> {
+    print!("Working on Service Events (System.evtx): ");
     let mut parser = parse_evtx(input).unwrap();
     let mut service_event_list: Vec<ServiceEventEntry> = Vec::new();
     for record in parser.records() {
@@ -113,12 +114,13 @@ pub fn sys_evtx_service_events_data(input: &str, outpath: &str) -> Result<(), Er
         service_event_list,
     )
     .expect("failed to write .json!");
-    //println!("Done! :)");
+    println!("Done here!");
     Ok(())
 }
 
 // Windows 10+
 pub fn sec_evtx_service_events_data(input: &str, outpath: &str) -> Result<(), Error> {
+    print!("Working on Service Events (Security.evtx): ");
     let mut parser = parse_evtx(input).unwrap();
     let mut service_event_list: Vec<ServiceEventEntry> = Vec::new();
     for record in parser.records() {
@@ -148,6 +150,6 @@ pub fn sec_evtx_service_events_data(input: &str, outpath: &str) -> Result<(), Er
         service_event_list,
     )
     .expect("failed to write .json!");
-    //println!("Done! :)");
+    println!("Done here!");
     Ok(())
 }
