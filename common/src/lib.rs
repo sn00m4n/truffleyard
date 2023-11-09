@@ -222,8 +222,12 @@ pub fn read_extended_ascii(buf: &[u8], offset: usize, length: usize) -> Option<S
 }
 
 // make a path to use (creating folder error!)
-pub fn make_path(outpath: &str, foldername: &str) -> io::Result<String> {
-    let path = format!("{outpath}/{foldername}");
-    fs::create_dir(&path)?;
+pub fn make_path(path: String) -> io::Result<String> {
+    if fs::metadata(&path).is_err() {
+        fs::create_dir(&path)?;
+        println!("Created new directory: {}", path);
+    } else {
+        println!("Using existing directory: {}", path);
+    }
     Ok(path)
 }
