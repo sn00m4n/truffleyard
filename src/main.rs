@@ -3,7 +3,7 @@ mod application_execution;
 mod browser_activity;
 mod cloud_storage;
 mod deleted_items_file_existence;
-pub mod errors;
+mod errors;
 mod eventlogs;
 mod external_device_usb_usage;
 mod file_folder_opening;
@@ -108,8 +108,9 @@ fn main() -> Result<()> {
         Commands::All => {
             let path = format!("{}/{}", cli.output_path, cli.folder_name);
             let out_put_path = make_path(path).context("Failed to create directory!")?;
-            /*let data = "Hello World!";
-            let file = format!("{out_put_path}/test2");
+            /* println!("{}", out_put_path);
+            let data = "Hello World!";
+            let file = format!("{out_put_path}/test");
             fs::write(file, data).expect("Unable to write file");
             println!("{}", out_put_path);*/
             get_eventlog_data(&cli.image_path, &out_put_path)

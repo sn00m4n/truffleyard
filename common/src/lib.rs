@@ -4,10 +4,12 @@ use std::io::Error;
 use std::num::ParseIntError;
 use std::{fs, io};
 
+use anyhow::{anyhow, Result};
 use chrono::{DateTime, Duration, NaiveDate, NaiveTime, Utc};
 use encoding_rs::UTF_16LE;
 use evtx::{EvtxParser, ParserSettings};
 use serde::{Deserialize, Serialize};
+//use serde_json::to_string;
 
 // Types:
 pub type VendorList = HashMap<u16, Vendor>;
@@ -222,12 +224,33 @@ pub fn read_extended_ascii(buf: &[u8], offset: usize, length: usize) -> Option<S
 }
 
 // make a path to use (creating folder error!)
-pub fn make_path(path: String) -> io::Result<String> {
+
+pub fn make_path(path: String) -> Result<String> {
     if fs::metadata(&path).is_err() {
         fs::create_dir(&path)?;
         println!("Created new directory: {}", path);
+        Ok(path)
     } else {
-        println!("Using existing directory: {}", path);
+        println!("Directory/path exists! Use existing? (Y/n): ");
+        let mut line = String::new();
+        io::stdin().read_line(&mut line)?;
+        match line.as_ref() {
+            "y\n" | "Y\n" | "\n" => {
+                println!("Using existing directory/path: {}", path);
+                Ok(path)
+            }
+            "n\n" => {
+                println!("Please enter a new path! (complete path): ");
+                let mut line = String::new();
+                io::stdin().read_line(&mut line)?;
+                let path = line.trim().to_string();
+                make_path(path.clone())?;
+                Ok(path)
+            }
+            _ => {
+                //println!("Invalid input! Exiting.");
+                Err(anyhow!("Invalid input. Aborting."))
+            }
+        }
     }
-    Ok(path)
 }
