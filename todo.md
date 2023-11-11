@@ -99,7 +99,7 @@
 - [ ] User Information 
 - [ ] Shortcut Files 
 - [x] Connection Timestamps
-- [x] Volume Serial Number
+- [ ] Volume Serial Number
 
 ## Other To-Do's
 - [ ] Error Handling
