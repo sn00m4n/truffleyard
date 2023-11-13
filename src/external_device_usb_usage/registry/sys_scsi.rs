@@ -25,6 +25,9 @@ struct ScsiEntry {
 static RE: Lazy<Regex> =
     Lazy::new(|| Regex::new("Disk&Ven_(?<man>.*?)&Prod_(?<titl>.*?\\S*)").unwrap());
 
+static RB: Lazy<Regex> =
+    Lazy::new(|| Regex::new("CdRom&Ven_(?<man2>.*?)&Prod_(?<titl2>.*?\\S*)").unwrap());
+
 pub fn sys_get_scsi_data(reg_file: &str, outpath: &str) -> Result<(), Error> {
     print!("Working on SCSI: ");
     let mut buffer = Vec::new();
@@ -48,69 +51,141 @@ pub fn sys_get_scsi_data(reg_file: &str, outpath: &str) -> Result<(), Error> {
     for sub_keys in sub_key_nodes {
         let sub_key = sub_keys.unwrap();
         let subkey = sub_key.name().unwrap().to_string();
-        let captures = RE.captures(&subkey).unwrap();
-        let manufacturer = captures.name("man").unwrap().as_str().trim().to_string();
-        let title = captures.name("titl").unwrap().as_str().trim().to_string();
+        if subkey.starts_with("Disk&Ven_") {
+            let captures = RE.captures(&subkey).unwrap();
+            let manufacturer = captures.name("man").unwrap().as_str().trim().to_string();
+            let title = captures.name("titl").unwrap().as_str().trim().to_string();
 
-        // subkeys unter DiskVen -> ParentIdPrefix
-        let parentid = sub_key.subkeys().unwrap().unwrap();
-        for para_key in parentid {
-            let para_key = para_key.unwrap();
-            let friendly_name = para_key.value("FriendlyName");
-            if let Some(Ok(friendly)) = friendly_name {
-                let parentidpre = para_key.name().unwrap().to_string();
-                let timestamp = convert_win_time(para_key.header().timestamp.get());
+            // subkeys unter DiskVen -> ParentIdPrefix
+            let parentid = sub_key.subkeys().unwrap().unwrap();
+            for para_key in parentid {
+                let para_key = para_key.unwrap();
+                let friendly_name = para_key.value("FriendlyName");
+                if let Some(Ok(friendly)) = friendly_name {
+                    let parentidpre = para_key.name().unwrap().to_string();
+                    let timestamp = convert_win_time(para_key.header().timestamp.get());
 
-                // subkeys under parentidprefix
-                let parentsubkey = para_key.subkeys().unwrap().unwrap();
-                for pasubkey in parentsubkey {
-                    let pasubkey = pasubkey.unwrap();
+                    // subkeys under parentidprefix
+                    let parentsubkey = para_key.subkeys().unwrap().unwrap();
+                    for pasubkey in parentsubkey {
+                        let pasubkey = pasubkey.unwrap();
 
-                    if pasubkey
-                        .name()
-                        .unwrap()
-                        .to_string()
-                        .starts_with("Properties")
-                    {
-                        let propsubkey = pasubkey.subkeys().unwrap().unwrap();
-                        for propertykey in propsubkey {
-                            let propertykey = propertykey.unwrap();
+                        if pasubkey
+                            .name()
+                            .unwrap()
+                            .to_string()
+                            .starts_with("Properties")
+                        {
+                            let propsubkey = pasubkey.subkeys().unwrap().unwrap();
+                            for propertykey in propsubkey {
+                                let propertykey = propertykey.unwrap();
 
-                            if propertykey.name().unwrap().to_string().starts_with("{83da") {
-                                let property = propertykey.subkeys().unwrap().unwrap();
+                                if propertykey.name().unwrap().to_string().starts_with("{83da") {
+                                    let property = propertykey.subkeys().unwrap().unwrap();
 
-                                for prop in property {
-                                    let prop = prop.unwrap();
-                                    //first connection time
-                                    if prop.name().unwrap().to_string().starts_with("0064") {
-                                        let fc_timestamp =
-                                            convert_win_time(prop.header().timestamp.get());
+                                    for prop in property {
+                                        let prop = prop.unwrap();
+                                        //first connection time
+                                        if prop.name().unwrap().to_string().starts_with("0064") {
+                                            let fc_timestamp =
+                                                convert_win_time(prop.header().timestamp.get());
 
-                                        let property = propertykey.subkeys().unwrap().unwrap();
+                                            let property = propertykey.subkeys().unwrap().unwrap();
 
-                                        for prop in property {
-                                            let prop = prop.unwrap();
-                                            // last connection time
-                                            if prop.name().unwrap().to_string().starts_with("0066")
-                                            {
-                                                let lc_timestamp =
-                                                    convert_win_time(prop.header().timestamp.get());
+                                            for prop in property {
+                                                let prop = prop.unwrap();
+                                                // last connection time
+                                                if prop
+                                                    .name()
+                                                    .unwrap()
+                                                    .to_string()
+                                                    .starts_with("0066")
+                                                {
+                                                    let lc_timestamp = convert_win_time(
+                                                        prop.header().timestamp.get(),
+                                                    );
 
-                                                let scsi_entry = ScsiEntry {
-                                                    time_stamp: timestamp,
-                                                    manufacturer: manufacturer
-                                                        .as_str()
-                                                        .trim()
-                                                        .to_string(),
-                                                    title: title.as_str().trim().to_string(),
-                                                    parentidprefix: parentidpre.clone(),
-                                                    device_name: friendly
-                                                        .string_data()
-                                                        .unwrap_or("".to_string()),
-                                                    first_connected: fc_timestamp,
-                                                    last_connected: lc_timestamp,
-                                                };
-                                                scsi_entries.push(scsi_entry);
+                                                    let scsi_entry = ScsiEntry {
+                                                        time_stamp: timestamp,
+                                                        manufacturer: manufacturer
+                                                            .as_str()
+                                                            .trim()
+                                                            .to_string(),
+                                                        title: title.as_str().trim().to_string(),
+                                                        parentidprefix: parentidpre.clone(),
+                                                        device_name: friendly
+                                                            .string_data()
+                                                            .unwrap_or("".to_string()),
+                                                        first_connected: fc_timestamp,
+                                                        last_connected: lc_timestamp,
+                                                    };
+                                                    scsi_entries.push(scsi_entry);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    let parentidpre = para_key.name().unwrap().to_string();
+                    let timestamp = convert_win_time(para_key.header().timestamp.get());
+
+                    // subkeys under parentidprefix
+                    let parentsubkey = para_key.subkeys().unwrap().unwrap();
+                    for pasubkey in parentsubkey {
+                        let pasubkey = pasubkey.unwrap();
+
+                        if pasubkey
+                            .name()
+                            .unwrap()
+                            .to_string()
+                            .starts_with("Properties")
+                        {
+                            let propsubkey = pasubkey.subkeys().unwrap().unwrap();
+                            for propertykey in propsubkey {
+                                let propertykey = propertykey.unwrap();
+
+                                if propertykey.name().unwrap().to_string().starts_with("{83da") {
+                                    let property = propertykey.subkeys().unwrap().unwrap();
+
+                                    for prop in property {
+                                        let prop = prop.unwrap();
+                                        //first connection time
+                                        if prop.name().unwrap().to_string().starts_with("0064") {
+                                            let fc_timestamp =
+                                                convert_win_time(prop.header().timestamp.get());
+
+                                            let property = propertykey.subkeys().unwrap().unwrap();
+
+                                            for prop in property {
+                                                let prop = prop.unwrap();
+                                                // last connection time
+                                                if prop
+                                                    .name()
+                                                    .unwrap()
+                                                    .to_string()
+                                                    .starts_with("0066")
+                                                {
+                                                    let lc_timestamp = convert_win_time(
+                                                        prop.header().timestamp.get(),
+                                                    );
+
+                                                    let scsi_entry = ScsiEntry {
+                                                        time_stamp: timestamp,
+                                                        manufacturer: manufacturer
+                                                            .as_str()
+                                                            .trim()
+                                                            .to_string(),
+                                                        title: title.as_str().trim().to_string(),
+                                                        parentidprefix: parentidpre.clone(),
+                                                        device_name: "".to_string(),
+                                                        first_connected: fc_timestamp,
+                                                        last_connected: lc_timestamp,
+                                                    };
+                                                    scsi_entries.push(scsi_entry);
+                                                }
                                             }
                                         }
                                     }
@@ -119,58 +194,143 @@ pub fn sys_get_scsi_data(reg_file: &str, outpath: &str) -> Result<(), Error> {
                         }
                     }
                 }
-            } else {
-                let parentidpre = para_key.name().unwrap().to_string();
-                let timestamp = convert_win_time(para_key.header().timestamp.get());
+            }
+        }
+        if subkey.starts_with("CdRom&Ven_") {
+            let captures = RB.captures(&subkey).unwrap();
+            let manufacturer = captures.name("man2").unwrap().as_str().trim().to_string();
+            let title = captures.name("titl2").unwrap().as_str().trim().to_string();
 
-                // subkeys under parentidprefix
-                let parentsubkey = para_key.subkeys().unwrap().unwrap();
-                for pasubkey in parentsubkey {
-                    let pasubkey = pasubkey.unwrap();
+            // subkeys unter DiskVen -> ParentIdPrefix
+            let parentid = sub_key.subkeys().unwrap().unwrap();
+            for para_key in parentid {
+                let para_key = para_key.unwrap();
+                let friendly_name = para_key.value("FriendlyName");
+                if let Some(Ok(friendly)) = friendly_name {
+                    let parentidpre = para_key.name().unwrap().to_string();
+                    let timestamp = convert_win_time(para_key.header().timestamp.get());
 
-                    if pasubkey
-                        .name()
-                        .unwrap()
-                        .to_string()
-                        .starts_with("Properties")
-                    {
-                        let propsubkey = pasubkey.subkeys().unwrap().unwrap();
-                        for propertykey in propsubkey {
-                            let propertykey = propertykey.unwrap();
+                    // subkeys under parentidprefix
+                    let parentsubkey = para_key.subkeys().unwrap().unwrap();
+                    for pasubkey in parentsubkey {
+                        let pasubkey = pasubkey.unwrap();
 
-                            if propertykey.name().unwrap().to_string().starts_with("{83da") {
-                                let property = propertykey.subkeys().unwrap().unwrap();
+                        if pasubkey
+                            .name()
+                            .unwrap()
+                            .to_string()
+                            .starts_with("Properties")
+                        {
+                            let propsubkey = pasubkey.subkeys().unwrap().unwrap();
+                            for propertykey in propsubkey {
+                                let propertykey = propertykey.unwrap();
 
-                                for prop in property {
-                                    let prop = prop.unwrap();
-                                    //first connection time
-                                    if prop.name().unwrap().to_string().starts_with("0064") {
-                                        let fc_timestamp =
-                                            convert_win_time(prop.header().timestamp.get());
+                                if propertykey.name().unwrap().to_string().starts_with("{83da") {
+                                    let property = propertykey.subkeys().unwrap().unwrap();
 
-                                        let property = propertykey.subkeys().unwrap().unwrap();
+                                    for prop in property {
+                                        let prop = prop.unwrap();
+                                        //first connection time
+                                        if prop.name().unwrap().to_string().starts_with("0064") {
+                                            let fc_timestamp =
+                                                convert_win_time(prop.header().timestamp.get());
 
-                                        for prop in property {
-                                            let prop = prop.unwrap();
-                                            // last connection time
-                                            if prop.name().unwrap().to_string().starts_with("0066")
-                                            {
-                                                let lc_timestamp =
-                                                    convert_win_time(prop.header().timestamp.get());
+                                            let property = propertykey.subkeys().unwrap().unwrap();
 
-                                                let scsi_entry = ScsiEntry {
-                                                    time_stamp: timestamp,
-                                                    manufacturer: manufacturer
-                                                        .as_str()
-                                                        .trim()
-                                                        .to_string(),
-                                                    title: title.as_str().trim().to_string(),
-                                                    parentidprefix: parentidpre.clone(),
-                                                    device_name: "".to_string(),
-                                                    first_connected: fc_timestamp,
-                                                    last_connected: lc_timestamp,
-                                                };
-                                                scsi_entries.push(scsi_entry);
+                                            for prop in property {
+                                                let prop = prop.unwrap();
+                                                // last connection time
+                                                if prop
+                                                    .name()
+                                                    .unwrap()
+                                                    .to_string()
+                                                    .starts_with("0066")
+                                                {
+                                                    let lc_timestamp = convert_win_time(
+                                                        prop.header().timestamp.get(),
+                                                    );
+
+                                                    let scsi_entry = ScsiEntry {
+                                                        time_stamp: timestamp,
+                                                        manufacturer: manufacturer
+                                                            .as_str()
+                                                            .trim()
+                                                            .to_string(),
+                                                        title: title.as_str().trim().to_string(),
+                                                        parentidprefix: parentidpre.clone(),
+                                                        device_name: friendly
+                                                            .string_data()
+                                                            .unwrap_or("".to_string()),
+                                                        first_connected: fc_timestamp,
+                                                        last_connected: lc_timestamp,
+                                                    };
+                                                    scsi_entries.push(scsi_entry);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    let parentidpre = para_key.name().unwrap().to_string();
+                    let timestamp = convert_win_time(para_key.header().timestamp.get());
+
+                    // subkeys under parentidprefix
+                    let parentsubkey = para_key.subkeys().unwrap().unwrap();
+                    for pasubkey in parentsubkey {
+                        let pasubkey = pasubkey.unwrap();
+
+                        if pasubkey
+                            .name()
+                            .unwrap()
+                            .to_string()
+                            .starts_with("Properties")
+                        {
+                            let propsubkey = pasubkey.subkeys().unwrap().unwrap();
+                            for propertykey in propsubkey {
+                                let propertykey = propertykey.unwrap();
+
+                                if propertykey.name().unwrap().to_string().starts_with("{83da") {
+                                    let property = propertykey.subkeys().unwrap().unwrap();
+
+                                    for prop in property {
+                                        let prop = prop.unwrap();
+                                        //first connection time
+                                        if prop.name().unwrap().to_string().starts_with("0064") {
+                                            let fc_timestamp =
+                                                convert_win_time(prop.header().timestamp.get());
+
+                                            let property = propertykey.subkeys().unwrap().unwrap();
+
+                                            for prop in property {
+                                                let prop = prop.unwrap();
+                                                // last connection time
+                                                if prop
+                                                    .name()
+                                                    .unwrap()
+                                                    .to_string()
+                                                    .starts_with("0066")
+                                                {
+                                                    let lc_timestamp = convert_win_time(
+                                                        prop.header().timestamp.get(),
+                                                    );
+
+                                                    let scsi_entry = ScsiEntry {
+                                                        time_stamp: timestamp,
+                                                        manufacturer: manufacturer
+                                                            .as_str()
+                                                            .trim()
+                                                            .to_string(),
+                                                        title: title.as_str().trim().to_string(),
+                                                        parentidprefix: parentidpre.clone(),
+                                                        device_name: "".to_string(),
+                                                        first_connected: fc_timestamp,
+                                                        last_connected: lc_timestamp,
+                                                    };
+                                                    scsi_entries.push(scsi_entry);
+                                                }
                                             }
                                         }
                                     }
