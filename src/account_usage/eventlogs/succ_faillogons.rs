@@ -32,12 +32,12 @@ struct LogonEntry {
 // function to get all the data (might refactor)
 pub fn sec_evtx_logons_data(input: &str, outpath: &str) -> Result<(), Error> {
     print!("Working on Logons: ");
-    let mut parser = parse_evtx(input).unwrap();
+    let mut parser = parse_evtx(input)?;
     let mut logons_list: Vec<LogonEntry> = Vec::new();
     for record in parser.records() {
-        let record = record.unwrap();
+        let record = record?;
 
-        let event: Event = serde_xml_rs::from_str(&record.data).unwrap();
+        let event: Event = serde_xml_rs::from_str(&record.data)?;
         let event_id = event.system.event_id;
         let logon_type = OuterName::Known(Name::LogonType);
 

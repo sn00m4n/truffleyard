@@ -1,3 +1,5 @@
+#![warn(clippy::unwrap_used, clippy::expect_used)]
+
 mod account_usage;
 mod application_execution;
 mod browser_activity;

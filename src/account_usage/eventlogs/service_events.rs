@@ -49,7 +49,7 @@ pub fn sys_evtx_service_events_data(input: &str, outpath: &str) -> Result<(), Er
         }
 
         // event id 7035 -> service sent start/stop control
-        if event.system.event_id == 7035 {
+        else if event.system.event_id == 7035 {
             let data = record.clone().data;
             let json_data = to_json(&data).unwrap();
             let service_entry = ServiceEventEntry {

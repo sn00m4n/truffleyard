@@ -38,7 +38,7 @@ pub fn sec_evtx_authentication_events_data(input: &str, outpath: &str) -> Result
         // NTLM protocol: successful/failed account authentication
         if event_id == 4776 {
             let data = record.clone().data;
-            let json_data = to_json(&data).unwrap();
+            let json_data = to_json(&data)?;
 
             let authentication_entry = AuthenticationEventEntry {
                 event_record_id: record.event_record_id,
@@ -51,9 +51,9 @@ pub fn sec_evtx_authentication_events_data(input: &str, outpath: &str) -> Result
         }
         // Kerberos protocol: EventIDs 4768, 4769 and 4771
         // Ticket Granting Ticket was granted (successful logon)
-        if event_id == 4768 {
+        else if event_id == 4768 {
             let data = record.clone().data;
-            let json_data = to_json(&data).unwrap();
+            let json_data = to_json(&data)?;
             let authentication_entry = AuthenticationEventEntry {
                 event_record_id: record.event_record_id,
                 event_id,
@@ -64,9 +64,9 @@ pub fn sec_evtx_authentication_events_data(input: &str, outpath: &str) -> Result
             authentication_event_list.push(authentication_entry);
         }
         // Service Ticket was requested (access to server resource)
-        if event_id == 4769 {
+        else if event_id == 4769 {
             let data = record.clone().data;
-            let json_data = to_json(&data).unwrap();
+            let json_data = to_json(&data)?;
             let authentication_entry = AuthenticationEventEntry {
                 event_record_id: record.event_record_id,
                 event_id,
@@ -77,9 +77,9 @@ pub fn sec_evtx_authentication_events_data(input: &str, outpath: &str) -> Result
             authentication_event_list.push(authentication_entry);
         }
         // Pre-authentication failed (failed logon)
-        if event_id == 4771 {
+        else if event_id == 4771 {
             let data = record.clone().data;
-            let json_data = to_json(&data).unwrap();
+            let json_data = to_json(&data)?;
             let authentication_entry = AuthenticationEventEntry {
                 event_record_id: record.event_record_id,
                 event_id,

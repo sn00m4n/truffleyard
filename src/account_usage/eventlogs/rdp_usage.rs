@@ -31,7 +31,7 @@ pub fn sec_evtx_rdp_usage_data(input: &str, outpath: &str) -> Result<()> {
 
     for record in parser.records() {
         let record = record.context("Failed to get record!")?;
-        let event: Event = serde_xml_rs::from_str(&record.data).unwrap();
+        let event: Event = serde_xml_rs::from_str(&record.data)?;
 
         let event_id = event.system.event_id;
         let logon_type = OuterName::Known(Name::LogonType);
@@ -43,7 +43,7 @@ pub fn sec_evtx_rdp_usage_data(input: &str, outpath: &str) -> Result<()> {
                     let test = data.value.unwrap();
                     if test.eq("10") {
                         let data = record.clone().data;
-                        let json_data = to_json(&data).unwrap();
+                        let json_data = to_json(&data)?;
                         let rdp_entry = RDPEventEntry {
                             event_record_id: record.event_record_id,
                             event_id: event.system.event_id,
@@ -58,9 +58,9 @@ pub fn sec_evtx_rdp_usage_data(input: &str, outpath: &str) -> Result<()> {
             }
         }
         // event id 4779 -> session connected/reconnected
-        if event_id == 4778 {
+        else if event_id == 4778 {
             let data = record.clone().data;
-            let json_data = to_json(&data).unwrap();
+            let json_data = to_json(&data)?;
 
             let rdp_entry = RDPEventEntry {
                 event_record_id: record.event_record_id,
@@ -73,9 +73,9 @@ pub fn sec_evtx_rdp_usage_data(input: &str, outpath: &str) -> Result<()> {
             rdp_usage_list.push(rdp_entry);
         }
         // event id 4779 -> session disconnected
-        if event_id == 4779 {
+        else if event_id == 4779 {
             let data = record.clone().data;
-            let json_data = to_json(&data).unwrap();
+            let json_data = to_json(&data)?;
 
             let rdp_entry = RDPEventEntry {
                 event_record_id: record.event_record_id,
