@@ -1,6 +1,6 @@
 use std::fs;
 use std::fs::{read_to_string, File};
-use std::io::{Read, Write};
+use std::io::{BufWriter, Read, Write};
 
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
@@ -280,8 +280,11 @@ pub fn sof_get_device_data(reg_file: &str, vidpid_json: &str, outpath: &str) -> 
         println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
-    write_json_lines(format!("{outpath}/reg_volume_name.json"), volnames)
-        .expect("failed to write .json!");
+    let file = File::create(outpath)?;
+    let mut writer = BufWriter::new(file);
+    serde_json::to_writer(&mut writer, &volnames)?;
+    writer.flush()?;
+
     println!("Done here!");
     Ok(())
 }

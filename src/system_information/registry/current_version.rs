@@ -2,7 +2,7 @@
 // "This determines the operating system type, version, build number and installation dates for the current installation." - SANS Windows Forensic Analysis Poster
 
 use std::fs::File;
-use std::io::Read;
+use std::io::{BufWriter, Read, Write};
 
 use chrono::{DateTime, NaiveDateTime, Utc};
 use common::convert_win_time;
@@ -135,8 +135,11 @@ pub fn get_current_os_version(reg_file: &str, outpath: &str) -> Result<(), Error
         return Ok(());
     }
 
-    write_json_lines(format!("{outpath}/reg_current_version.json"), &os_entry)
-        .expect("failed to write .json");
+    let file = File::create(outpath)?;
+    let mut writer = BufWriter::new(file);
+    serde_json::to_writer(&mut writer, &os_entry)?;
+    writer.flush()?;
+
     println!("Done here!");
     Ok(())
 }

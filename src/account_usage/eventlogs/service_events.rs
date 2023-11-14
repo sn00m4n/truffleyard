@@ -1,6 +1,9 @@
 // "analyze logs for suspicious windows service creation, persistence, and services started or
 // stopped around the time of a suspected compromise. service events also record account information" - SANS Poster Windows Forensics
 
+use std::fs::File;
+use std::io::{BufWriter, Write};
+
 use chrono::{DateTime, Utc};
 use common::{parse_evtx, Event};
 use serde::Serialize;
@@ -145,11 +148,12 @@ pub fn sec_evtx_service_events_data(input: &str, outpath: &str) -> Result<(), Er
         println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
-    write_json_lines(
-        format!("{outpath}/evtx_service_events.json"),
-        service_event_list,
-    )
-    .expect("failed to write .json!");
+
+    let file = File::create(outpath)?;
+    let mut writer = BufWriter::new(file);
+    serde_json::to_writer(&mut writer, &service_event_list)?;
+    writer.flush()?;
+
     println!("Done here!");
     Ok(())
 }

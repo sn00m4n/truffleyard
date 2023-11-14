@@ -1,5 +1,5 @@
 use std::fs::{read_to_string, File};
-use std::io::Read;
+use std::io::{BufWriter, Read, Write};
 
 use chrono::{DateTime, Utc};
 use common::{convert_to_hex, convert_to_int, convert_win_time, VendorList};
@@ -226,8 +226,11 @@ pub fn sys_get_hid_data(
         println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
-    write_json_lines(format!("{outpath}/reg_hid.json"), &hdi_entries)
-        .expect("failed to write .json!");
+    let file = File::create(outpath)?;
+    let mut writer = BufWriter::new(file);
+    serde_json::to_writer(&mut writer, &hdi_entries)?;
+    writer.flush()?;
+
     println!("Done here!");
     Ok(())
 }

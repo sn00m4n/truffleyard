@@ -2,7 +2,7 @@
 // SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList
 
 use std::fs::File;
-use std::io::Read;
+use std::io::{BufWriter, Read, Write};
 
 use chrono::{DateTime, Utc};
 use common::convert_win_time;
@@ -64,12 +64,11 @@ pub fn get_profile_list(reg_file: &str, outpath: &str) -> Result<(), Error> {
         return Ok(());
     }
 
-    // println!("{outpath}/useraccounts.json");
-    write_json_lines(
-        format!("{outpath}/reg_useraccounts.json"),
-        &profile_list_list,
-    )
-    .expect("failed to write .json");
+    let file = File::create(outpath)?;
+    let mut writer = BufWriter::new(file);
+    serde_json::to_writer(&mut writer, &profile_list_list)?;
+    writer.flush()?;
+
     println!("Done here!");
     Ok(())
 }

@@ -5,6 +5,9 @@
 
 // successful and failed logons with description
 
+use std::fs::File;
+use std::io::{BufWriter, Write};
+
 use chrono::{DateTime, Utc};
 use common::{parse_evtx, Event, Name, OuterName};
 use serde::Serialize;
@@ -283,8 +286,11 @@ pub fn sec_evtx_logons_data(input: &str, outpath: &str) -> Result<(), Error> {
     }
 
     // write output in ndjson
-    write_json_lines(format!("{outpath}/evtx_logons.json"), logons_list)
-        .expect("failed to write .json!");
+    let file = File::create(outpath)?;
+    let mut writer = BufWriter::new(file);
+    serde_json::to_writer(&mut writer, &logons_list)?;
+    writer.flush()?;
+
     println!("Done here!");
     Ok(())
 }

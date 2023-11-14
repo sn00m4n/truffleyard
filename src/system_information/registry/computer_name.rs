@@ -2,7 +2,7 @@
 // "This stores the hostname of the system in the ComputerName Value." - SANS Windows Forensic Analysis Posters
 
 use std::fs::File;
-use std::io::Read;
+use std::io::{BufWriter, Read, Write};
 
 use nt_hive::Hive;
 use serde::Serialize;
@@ -46,8 +46,11 @@ pub fn get_computer_name(reg_file: &str, outpath: &str) -> Result<(), Error> {
         println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
-    write_json_lines(format!("{outpath}/reg_computer_name.json"), &computers)
-        .expect("failed to write json");
+    let file = File::create(outpath)?;
+    let mut writer = BufWriter::new(file);
+    serde_json::to_writer(&mut writer, &computers)?;
+    writer.flush()?;
+
     println!("Done here!");
     Ok(())
 }

@@ -1,6 +1,9 @@
 // "Authentication Events identify where authentication of credentials occurred.
 // They can be particularly useful when tracking local vs. domain account usage" - SANS Poster Windows Forensics, Authentication Events
 
+use std::fs::File;
+use std::io::{BufWriter, Write};
+
 // Security.evtx
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
@@ -92,12 +95,12 @@ pub fn sec_evtx_authentication_events_data(input: &str, outpath: &str) -> Result
         println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
-    // write json file in ndjson format
-    write_json_lines(
-        format!("{outpath}/evtx_authentication_events.json"),
-        authentication_event_list,
-    )
-    .expect("failed to write .json!");
+
+    let file = File::create(outpath)?;
+    let mut writer = BufWriter::new(file);
+    serde_json::to_writer(&mut writer, &authentication_event_list)?;
+    writer.flush()?;
+
     println!("Done here!");
     Ok(())
 }

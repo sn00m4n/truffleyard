@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::Read;
+use std::io::{BufWriter, Read, Write};
 
 use chrono::{DateTime, Utc};
 use common::convert_win_time;
@@ -248,8 +248,11 @@ pub fn sys_get_usbstor_data(reg_file: &str, outpath: &str) -> Result<(), Error> 
         println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
-    write_json_lines(format!("{outpath}/reg_usbstor.json"), &usbstor_entries)
-        .expect("failed to write .json");
+    let file = File::create(outpath)?;
+    let mut writer = BufWriter::new(file);
+    serde_json::to_writer(&mut writer, &usbstor_entries)?;
+    writer.flush()?;
+
     println!("Done here!");
     Ok(())
 }

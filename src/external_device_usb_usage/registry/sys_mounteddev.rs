@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 use std::fs::File;
-use std::io::Read;
+use std::io::{BufWriter, Read, Write};
 
 use common::read_extended_ascii;
 use encoding_rs::UTF_16LE;
@@ -126,11 +126,11 @@ pub fn sys_get_mounteddev_data(reg_file: &str, outpath: &str) -> Result<(), Erro
         println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
-    write_json_lines(
-        format!("{outpath}/reg_mounted_devices.json"),
-        &mounted_devices,
-    )
-    .expect("failed to write .json");
+    let file = File::create(outpath)?;
+    let mut writer = BufWriter::new(file);
+    serde_json::to_writer(&mut writer, &mounted_devices)?;
+    writer.flush()?;
+
     println!("Done here!");
     Ok(())
 }

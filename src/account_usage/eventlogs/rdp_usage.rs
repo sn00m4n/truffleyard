@@ -1,5 +1,8 @@
 // "track rdp logons and session reconnections to target machines" - SANS Poster Windows Forensics
 
+use std::fs::File;
+use std::io::{BufWriter, Write};
+
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 use common::{parse_evtx, Event, Name, OuterName};
@@ -91,9 +94,11 @@ pub fn sec_evtx_rdp_usage_data(input: &str, outpath: &str) -> Result<()> {
         return Ok(());
     }
 
-    //write outfile as ndjson
-    write_json_lines(format!("{outpath}/evtx_rdp_usage.json"), rdp_usage_list)
-        .expect("failed to write .json!");
+    let file = File::create(outpath)?;
+    let mut writer = BufWriter::new(file);
+    serde_json::to_writer(&mut writer, &rdp_usage_list)?;
+    writer.flush()?;
+
     println!("Done here!");
     Ok(())
 }
