@@ -94,7 +94,7 @@ pub fn sec_evtx_rdp_usage_data(input: &str, outpath: &str) -> Result<()> {
         return Ok(());
     }
 
-    let file = File::create(outpath)?;
+    let file = File::create(format!("{outpath}/evtx_rdp_usage.json"))?;
     let mut writer = BufWriter::new(file);
     serde_json::to_writer(&mut writer, &rdp_usage_list)?;
     writer.flush()?;

@@ -64,7 +64,7 @@ pub fn get_profile_list(reg_file: &str, outpath: &str) -> Result<(), Error> {
         return Ok(());
     }
 
-    let file = File::create(outpath)?;
+    let file = File::create(format!("{outpath}/reg_useraccounts.json"))?;
     let mut writer = BufWriter::new(file);
     serde_json::to_writer(&mut writer, &profile_list_list)?;
     writer.flush()?;

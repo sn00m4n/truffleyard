@@ -16,11 +16,11 @@ mod tests;
 
 //use std::error::Error;
 use std::fmt::{Display, Formatter};
-use std::fs;
 
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand, ValueEnum};
 use common::make_path;
+use log::error;
 
 use crate::account_usage::eventlogs_only::get_accountusage_eventlog_data;
 use crate::account_usage::registry_only::get_accountusage_registry_data;
@@ -115,26 +115,30 @@ fn main() -> Result<()> {
             let file = format!("{out_put_path}/test");
             fs::write(file, data).expect("Unable to write file");
             println!("{}", out_put_path);*/
-            get_eventlog_data(&cli.image_path, &out_put_path)
-                .context("Failed to get EventLog Data!")?;
-            get_registry_data(&cli.image_path, &out_put_path)
-                .context("Failed to get Registry Data!")?;
+            if let Err(err) = get_eventlog_data(&cli.image_path, &out_put_path) {
+                error!("Failed to get EventLog Data: {err}")
+            }
+            if let Err(err) = get_registry_data(&cli.image_path, &out_put_path) {
+                error!("Failed to get Registry Data: {err}")
+            }
             println!("All done!");
             Ok(())
         }
         Commands::Registry => {
             let path = format!("{}/{}", cli.output_path, cli.folder_name);
             let out_put_path = make_path(path).context("Failed to create directory!")?;
-            get_registry_data(&cli.image_path, &out_put_path)
-                .context("Failed to get Registry Data!")?;
+            if let Err(err) = get_registry_data(&cli.image_path, &out_put_path) {
+                error!("Failed to get Registry Data: {err}")
+            }
             println!("All done!");
             Ok(())
         }
         Commands::EventLogs => {
             let path = format!("{}/{}", cli.output_path, cli.folder_name);
             let out_put_path = make_path(path).context("Failed to create directory!")?;
-            get_eventlog_data(&cli.image_path, &out_put_path)
-                .context("Failed to get EventLog Data!")?;
+            if let Err(err) = get_eventlog_data(&cli.image_path, &out_put_path) {
+                error!("Failed to get EventLog Data!")
+            }
             println!("All done!");
             Ok(())
         }
@@ -142,26 +146,30 @@ fn main() -> Result<()> {
             ProcessingMode::RegistryOnly => {
                 let path = format!("{}/{}", cli.output_path, cli.folder_name);
                 let out_put_path = make_path(path).context("Failed to create directory!")?;
-                get_accountusage_registry_data(&cli.image_path, &out_put_path)
-                    .context("Failed to get Registry Data for Account Usage!")?;
+                if let Err(err) = get_accountusage_registry_data(&cli.image_path, &out_put_path) {
+                    error!("Failed to get Registry Data for Account Usage: {err}")
+                }
                 println!("All done!");
                 Ok(())
             }
             ProcessingMode::EventLogOnly => {
                 let path = format!("{}/{}", cli.output_path, cli.folder_name);
                 let out_put_path = make_path(path).context("Failed to create directory!")?;
-                get_accountusage_eventlog_data(&cli.image_path, &out_put_path)
-                    .context("Failed to get EventLog Data for Account Usage!")?;
+                if let Err(err) = get_accountusage_eventlog_data(&cli.image_path, &out_put_path) {
+                    error!("Failed to get EventLog Data for Account Usage: {err}")
+                }
                 println!("All done!");
                 Ok(())
             }
             ProcessingMode::All => {
                 let path = format!("{}/{}", cli.output_path, cli.folder_name);
                 let out_put_path = make_path(path).context("Failed to create directory!")?;
-                get_accountusage_eventlog_data(&cli.image_path, &out_put_path)
-                    .context("Failed to get EventLog Data for Account Usage!")?;
-                get_accountusage_registry_data(&cli.image_path, &out_put_path)
-                    .context("Failed to get Registry Data for Account Usage!")?;
+                if let Err(err) = get_accountusage_eventlog_data(&cli.image_path, &out_put_path) {
+                    error!("Failed to get EventLog Data for Account Usage: {err}")
+                }
+                if let Err(err) = get_accountusage_registry_data(&cli.image_path, &out_put_path) {
+                    error!("Failed to get Registry Data for Account Usage: {err}")
+                }
                 println!("All done!");
                 Ok(())
             }
@@ -170,8 +178,9 @@ fn main() -> Result<()> {
             ProcessingMode::RegistryOnly => {
                 let path = format!("{}/{}", cli.output_path, cli.folder_name);
                 let out_put_path = make_path(path).context("Failed to create directory!")?;
-                get_externaldevice_registry_data(&cli.image_path, &out_put_path)
-                    .context("Failed to get Registry Data for External Devices!")?;
+                if let Err(err) = get_externaldevice_registry_data(&cli.image_path, &out_put_path) {
+                    error!("Failed to get Registry Data for External Devices: {err}")
+                }
                 println!("All done!");
                 Ok(())
             }
@@ -182,9 +191,10 @@ fn main() -> Result<()> {
             ProcessingMode::All => {
                 println!("EventLogs are not implemented yet, will continue with Registry Only!");
                 let path = format!("{}/{}", cli.output_path, cli.folder_name);
-                let out_put_path = make_path(path).context("Failed to create directory!")?;
-                get_externaldevice_registry_data(&cli.image_path, &out_put_path)
-                    .context("Failed to get Registry Data for External Devices!")?;
+                let out_put_path = make_path(path).context("Failed to create directory: {err}")?;
+                if let Err(err) = get_externaldevice_registry_data(&cli.image_path, &out_put_path) {
+                    error!("Failed to get Registry Data for External Devices: {err}")
+                }
                 println!("All done!");
                 Ok(())
             }
@@ -193,8 +203,9 @@ fn main() -> Result<()> {
             ProcessingMode::RegistryOnly => {
                 let path = format!("{}/{}", cli.output_path, cli.folder_name);
                 let out_put_path = make_path(path).context("Failed to create directory!")?;
-                get_systeminfo_registry_data(&cli.image_path, &out_put_path)
-                    .context("Failed to get Registry Data for System Information!")?;
+                if let Err(err) = get_systeminfo_registry_data(&cli.image_path, &out_put_path) {
+                    error!("Failed to get Registry Data for System Information: {err}")
+                }
                 println!("All done!");
                 Ok(())
             }
@@ -206,8 +217,9 @@ fn main() -> Result<()> {
                 println!("EventLogs are not implemented yet, will continue with Registry Only!");
                 let path = format!("{}/{}", cli.output_path, cli.folder_name);
                 let out_put_path = make_path(path).context("Failed to create directory!")?;
-                get_systeminfo_registry_data(&cli.image_path, &out_put_path)
-                    .context("Failed to get Registry Data for System Information!")?;
+                if let Err(err) = get_systeminfo_registry_data(&cli.image_path, &out_put_path) {
+                    error!("Failed to get Registry Data for System Information: {err}")
+                }
                 println!("All done!");
                 Ok(())
             }

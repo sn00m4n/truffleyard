@@ -46,7 +46,7 @@ pub fn get_computer_name(reg_file: &str, outpath: &str) -> Result<(), Error> {
         println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
-    let file = File::create(outpath)?;
+    let file = File::create(format!("{outpath}/reg_computer_name.json"))?;
     let mut writer = BufWriter::new(file);
     serde_json::to_writer(&mut writer, &computers)?;
     writer.flush()?;

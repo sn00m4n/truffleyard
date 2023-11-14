@@ -226,7 +226,7 @@ pub fn sys_get_hid_data(
         println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
-    let file = File::create(outpath)?;
+    let file = File::create(format!("{outpath}/reg_hid.json"))?;
     let mut writer = BufWriter::new(file);
     serde_json::to_writer(&mut writer, &hdi_entries)?;
     writer.flush()?;

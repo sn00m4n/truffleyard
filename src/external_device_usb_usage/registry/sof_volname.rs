@@ -280,7 +280,7 @@ pub fn sof_get_device_data(reg_file: &str, vidpid_json: &str, outpath: &str) -> 
         println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
-    let file = File::create(outpath)?;
+    let file = File::create(format!("{outpath}reg_volume_name.json"))?;
     let mut writer = BufWriter::new(file);
     serde_json::to_writer(&mut writer, &volnames)?;
     writer.flush()?;

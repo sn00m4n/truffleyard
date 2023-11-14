@@ -139,7 +139,7 @@ pub fn get_os_updates(reg_file: &str, outpath: &str) -> Result<(), Error> {
         return Ok(());
     }
 
-    let file = File::create(outpath)?;
+    let file = File::create(format!("{outpath}/reg_old_os_versions.json"))?;
     let mut writer = BufWriter::new(file);
     serde_json::to_writer(&mut writer, &sourceos_entries)?;
     writer.flush()?;

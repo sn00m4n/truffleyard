@@ -286,7 +286,7 @@ pub fn sec_evtx_logons_data(input: &str, outpath: &str) -> Result<(), Error> {
     }
 
     // write output in ndjson
-    let file = File::create(outpath)?;
+    let file = File::create(format!("{outpath}/evtx_logons.json"))?;
     let mut writer = BufWriter::new(file);
     serde_json::to_writer(&mut writer, &logons_list)?;
     writer.flush()?;

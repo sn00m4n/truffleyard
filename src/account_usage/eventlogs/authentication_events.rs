@@ -96,7 +96,7 @@ pub fn sec_evtx_authentication_events_data(input: &str, outpath: &str) -> Result
         return Ok(());
     }
 
-    let file = File::create(outpath)?;
+    let file = File::create(format!("{outpath}/evtx_authentication_events.json"))?;
     let mut writer = BufWriter::new(file);
     serde_json::to_writer(&mut writer, &authentication_event_list)?;
     writer.flush()?;

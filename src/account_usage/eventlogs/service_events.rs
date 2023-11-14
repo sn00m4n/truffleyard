@@ -47,7 +47,6 @@ pub fn sys_evtx_service_events_data(input: &str, outpath: &str) -> Result<(), Er
             };
             service_event_list.push(service_entry);
         }
-
         // event id 7035 -> service sent start/stop control
         else if event.system.event_id == 7035 {
             let data = record.clone().data;
@@ -111,12 +110,10 @@ pub fn sys_evtx_service_events_data(input: &str, outpath: &str) -> Result<(), Er
         return Ok(());
     }
 
-    // write outfile in ndjson
-    write_json_lines(
-        format!("{outpath}/evtx_sys_service_events.json"),
-        service_event_list,
-    )
-    .expect("failed to write .json!");
+    let file = File::create(format!("{outpath}/evtx_sys_service_events_usage.json"))?;
+    let mut writer = BufWriter::new(file);
+    serde_json::to_writer(&mut writer, &service_event_list)?;
+    writer.flush()?;
     println!("Done here!");
     Ok(())
 }
@@ -149,7 +146,7 @@ pub fn sec_evtx_service_events_data(input: &str, outpath: &str) -> Result<(), Er
         return Ok(());
     }
 
-    let file = File::create(outpath)?;
+    let file = File::create(format!("{outpath}/evtx_sec_service_events_usage.json"))?;
     let mut writer = BufWriter::new(file);
     serde_json::to_writer(&mut writer, &service_event_list)?;
     writer.flush()?;

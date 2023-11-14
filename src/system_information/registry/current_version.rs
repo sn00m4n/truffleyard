@@ -135,7 +135,7 @@ pub fn get_current_os_version(reg_file: &str, outpath: &str) -> Result<(), Error
         return Ok(());
     }
 
-    let file = File::create(outpath)?;
+    let file = File::create(format!("{outpath}/reg_current_version.json"))?;
     let mut writer = BufWriter::new(file);
     serde_json::to_writer(&mut writer, &os_entry)?;
     writer.flush()?;

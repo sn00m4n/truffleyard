@@ -315,7 +315,7 @@ pub fn sys_get_usb_data(
         println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
-    let file = File::create(outpath)?;
+    let file = File::create(format!("{outpath}/reg_usb.json"))?;
     let mut writer = BufWriter::new(file);
     serde_json::to_writer(&mut writer, &usb_entries)?;
     writer.flush()?;

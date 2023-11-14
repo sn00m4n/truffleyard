@@ -248,7 +248,7 @@ pub fn sys_get_usbstor_data(reg_file: &str, outpath: &str) -> Result<(), Error> 
         println!("Nothing to do here, continuing with next job.");
         return Ok(());
     }
-    let file = File::create(outpath)?;
+    let file = File::create(format!("{outpath}/reg_usbstor.json"))?;
     let mut writer = BufWriter::new(file);
     serde_json::to_writer(&mut writer, &usbstor_entries)?;
     writer.flush()?;
