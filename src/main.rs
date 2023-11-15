@@ -110,11 +110,6 @@ fn main() -> Result<()> {
         Commands::All => {
             let path = format!("{}/{}", cli.output_path, cli.folder_name);
             let out_put_path = make_path(path).context("Failed to create directory!")?;
-            /* println!("{}", out_put_path);
-            let data = "Hello World!";
-            let file = format!("{out_put_path}/test");
-            fs::write(file, data).expect("Unable to write file");
-            println!("{}", out_put_path);*/
             if let Err(err) = get_eventlog_data(&cli.image_path, &out_put_path) {
                 error!("Failed to get EventLog Data: {err}")
             }
@@ -137,7 +132,7 @@ fn main() -> Result<()> {
             let path = format!("{}/{}", cli.output_path, cli.folder_name);
             let out_put_path = make_path(path).context("Failed to create directory!")?;
             if let Err(err) = get_eventlog_data(&cli.image_path, &out_put_path) {
-                error!("Failed to get EventLog Data!")
+                error!("Failed to get EventLog Data: {err}")
             }
             println!("All done!");
             Ok(())

@@ -10,11 +10,8 @@ use chrono::{DateTime, Utc};
 use common::{parse_evtx, Event};
 use serde::Serialize;
 use serde_json::Value;
-use serde_jsonlines::write_json_lines;
 use xmltojson::to_json;
 use {serde_xml_rs, xmltojson};
-
-use crate::errors::Error;
 
 #[derive(Debug, Serialize)]
 struct AuthenticationEventEntry {

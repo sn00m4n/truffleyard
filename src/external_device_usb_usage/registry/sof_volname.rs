@@ -1,4 +1,3 @@
-use std::fs;
 use std::fs::{read_to_string, File};
 use std::io::{BufWriter, Read, Write};
 
@@ -10,7 +9,6 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Serialize;
 use serde_json::from_str;
-use serde_jsonlines::write_json_lines;
 
 //use crate::errors::Error;
 // drive letter and device from SOFTWARE hive

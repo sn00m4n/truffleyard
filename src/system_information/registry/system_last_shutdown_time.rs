@@ -9,8 +9,6 @@ use chrono::{DateTime, Utc};
 use common::convert_win_time;
 use nt_hive::Hive;
 use serde::Serialize;
-use serde_jsonlines;
-use serde_jsonlines::write_json_lines;
 
 use crate::errors::Error;
 
@@ -36,7 +34,7 @@ pub fn get_shutdown_time(reg_file: &str, outpath: &str) -> Result<(), Error> {
         .unwrap()
         .unwrap();
 
-    let mut sd_time = sub_key_node
+    let sd_time = sub_key_node
         .value("ShutdownTime")
         .unwrap()
         .unwrap()

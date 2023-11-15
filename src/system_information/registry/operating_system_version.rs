@@ -8,8 +8,6 @@ use chrono::{DateTime, NaiveDateTime, Utc};
 use common::convert_win_time;
 use nt_hive::Hive;
 use serde::Serialize;
-use serde_jsonlines;
-use serde_jsonlines::write_json_lines;
 
 use crate::errors::Error;
 

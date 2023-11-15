@@ -9,7 +9,6 @@ use chrono::{DateTime, Duration, NaiveDate, NaiveTime, Utc};
 use encoding_rs::UTF_16LE;
 use evtx::{EvtxParser, ParserSettings};
 use serde::{Deserialize, Serialize};
-//use serde_json::to_string;
 
 // Types:
 pub type VendorList = HashMap<u16, Vendor>;

@@ -9,7 +9,6 @@ pub enum Error {
     IOError(io::Error),
     SerdeError(serde_xml_rs::Error),
     JsonError(serde_json::Error),
-    InvalidInput(io::Error),
 }
 
 impl std::error::Error for Error {}
@@ -26,9 +25,6 @@ impl Display for Error {
                 write!(f, "{err}")
             }
             Error::JsonError(err) => write!(f, "Json error: {err}"),
-            Error::InvalidInput(err) => {
-                write!(f, "{err}")
-            }
         }
     }
 }

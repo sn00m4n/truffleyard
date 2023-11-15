@@ -8,7 +8,6 @@ use nt_hive::Hive;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Serialize;
-use serde_jsonlines::write_json_lines;
 
 use crate::errors::Error;
 
@@ -49,7 +48,7 @@ pub fn sys_get_mounteddev_data(reg_file: &str, outpath: &str) -> Result<(), Erro
     let sub_key_node = root_key_node.subpath("MountedDevices").unwrap().unwrap();
     let mut mounted_devices: Vec<MountedDevice> = Vec::new();
 
-    for values in sub_key_node.values() {
+    while let Some(values) = sub_key_node.values() {
         let values = values.unwrap();
         for value in values {
             let value = value.unwrap();

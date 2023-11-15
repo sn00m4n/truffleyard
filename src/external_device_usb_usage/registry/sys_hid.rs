@@ -5,7 +5,6 @@ use chrono::{DateTime, Utc};
 use common::{convert_to_hex, convert_to_int, convert_win_time, VendorList};
 use nt_hive::Hive;
 use serde::Serialize;
-use serde_jsonlines::write_json_lines;
 
 use crate::errors::Error;
 
