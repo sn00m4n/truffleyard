@@ -16,6 +16,7 @@ mod tests;
 
 //use std::error::Error;
 use std::fmt::{Display, Formatter};
+use std::time::Instant;
 
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand, ValueEnum};
@@ -105,11 +106,13 @@ enum Commands {
 }
 
 fn main() -> Result<()> {
+    let before = Instant::now();
     let cli = Cli::parse();
     match cli.command {
         Commands::All => {
             let path = format!("{}/{}", cli.output_path, cli.folder_name);
             let out_put_path = make_path(path).context("Failed to create directory!")?;
+            let before2 = Instant::now();
             if let Err(err) = get_eventlog_data(&cli.image_path, &out_put_path) {
                 error!("Failed to get EventLog Data: {err}")
             }
@@ -117,48 +120,93 @@ fn main() -> Result<()> {
                 error!("Failed to get Registry Data: {err}")
             }
             println!("All done!");
+            println!(
+                "Elapsed time from very beginning (hitting enter): {:.2?}",
+                before.elapsed()
+            );
+            println!(
+                "Elapsed time from actual start of first extracting command:: {:.2?}",
+                before2.elapsed()
+            );
             Ok(())
         }
         Commands::Registry => {
             let path = format!("{}/{}", cli.output_path, cli.folder_name);
             let out_put_path = make_path(path).context("Failed to create directory!")?;
+            let before2 = Instant::now();
             if let Err(err) = get_registry_data(&cli.image_path, &out_put_path) {
                 error!("Failed to get Registry Data: {err}")
             }
             println!("All done!");
+            println!(
+                "Elapsed time from very beginning (hitting enter): {:.2?}",
+                before.elapsed()
+            );
+            println!(
+                "Elapsed time from actual start of first extracting command:: {:.2?}",
+                before2.elapsed()
+            );
             Ok(())
         }
         Commands::EventLogs => {
             let path = format!("{}/{}", cli.output_path, cli.folder_name);
             let out_put_path = make_path(path).context("Failed to create directory!")?;
+            let before2 = Instant::now();
             if let Err(err) = get_eventlog_data(&cli.image_path, &out_put_path) {
                 error!("Failed to get EventLog Data: {err}")
             }
             println!("All done!");
+            println!(
+                "Elapsed time from very beginning (hitting enter): {:.2?}",
+                before.elapsed()
+            );
+            println!(
+                "Elapsed time from actual start of first extracting command: {:.2?}",
+                before2.elapsed()
+            );
             Ok(())
         }
         Commands::AccountUsage { mode } => match mode {
             ProcessingMode::RegistryOnly => {
                 let path = format!("{}/{}", cli.output_path, cli.folder_name);
                 let out_put_path = make_path(path).context("Failed to create directory!")?;
+                let before2 = Instant::now();
                 if let Err(err) = get_accountusage_registry_data(&cli.image_path, &out_put_path) {
                     error!("Failed to get Registry Data for Account Usage: {err}")
                 }
                 println!("All done!");
+                println!(
+                    "Elapsed time from very beginning (hitting enter): {:.2?}",
+                    before.elapsed()
+                );
+                println!(
+                    "Elapsed time from actual start of first extracting command: {:.2?}",
+                    before2.elapsed()
+                );
                 Ok(())
             }
             ProcessingMode::EventLogOnly => {
                 let path = format!("{}/{}", cli.output_path, cli.folder_name);
                 let out_put_path = make_path(path).context("Failed to create directory!")?;
+                let before2 = Instant::now();
                 if let Err(err) = get_accountusage_eventlog_data(&cli.image_path, &out_put_path) {
                     error!("Failed to get EventLog Data for Account Usage: {err}")
                 }
                 println!("All done!");
+                println!(
+                    "Elapsed time from very beginning (hitting enter): {:.2?}",
+                    before.elapsed()
+                );
+                println!(
+                    "Elapsed time from actual start of first extracting command: {:.2?}",
+                    before2.elapsed()
+                );
                 Ok(())
             }
             ProcessingMode::All => {
                 let path = format!("{}/{}", cli.output_path, cli.folder_name);
                 let out_put_path = make_path(path).context("Failed to create directory!")?;
+                let before2 = Instant::now();
                 if let Err(err) = get_accountusage_eventlog_data(&cli.image_path, &out_put_path) {
                     error!("Failed to get EventLog Data for Account Usage: {err}")
                 }
@@ -166,6 +214,14 @@ fn main() -> Result<()> {
                     error!("Failed to get Registry Data for Account Usage: {err}")
                 }
                 println!("All done!");
+                println!(
+                    "Elapsed time from very beginning (hitting enter): {:.2?}",
+                    before.elapsed()
+                );
+                println!(
+                    "Elapsed time from actual start of first extracting command: {:.2?}",
+                    before2.elapsed()
+                );
                 Ok(())
             }
         },
@@ -173,10 +229,19 @@ fn main() -> Result<()> {
             ProcessingMode::RegistryOnly => {
                 let path = format!("{}/{}", cli.output_path, cli.folder_name);
                 let out_put_path = make_path(path).context("Failed to create directory!")?;
+                let before2 = Instant::now();
                 if let Err(err) = get_externaldevice_registry_data(&cli.image_path, &out_put_path) {
                     error!("Failed to get Registry Data for External Devices: {err}")
                 }
                 println!("All done!");
+                println!(
+                    "Elapsed time from very beginning (hitting enter): {:.2?}",
+                    before.elapsed()
+                );
+                println!(
+                    "Elapsed time from actual start of first extracting command: {:.2?}",
+                    before2.elapsed()
+                );
                 Ok(())
             }
             ProcessingMode::EventLogOnly => {
@@ -187,10 +252,19 @@ fn main() -> Result<()> {
                 println!("EventLogs are not implemented yet, will continue with Registry Only!");
                 let path = format!("{}/{}", cli.output_path, cli.folder_name);
                 let out_put_path = make_path(path).context("Failed to create directory: {err}")?;
+                let before2 = Instant::now();
                 if let Err(err) = get_externaldevice_registry_data(&cli.image_path, &out_put_path) {
                     error!("Failed to get Registry Data for External Devices: {err}")
                 }
                 println!("All done!");
+                println!(
+                    "Elapsed time from very beginning (hitting enter): {:.2?}",
+                    before.elapsed()
+                );
+                println!(
+                    "Elapsed time from actual start of first extracting command: {:.2?}",
+                    before2.elapsed()
+                );
                 Ok(())
             }
         },
@@ -198,10 +272,19 @@ fn main() -> Result<()> {
             ProcessingMode::RegistryOnly => {
                 let path = format!("{}/{}", cli.output_path, cli.folder_name);
                 let out_put_path = make_path(path).context("Failed to create directory!")?;
+                let before2 = Instant::now();
                 if let Err(err) = get_systeminfo_registry_data(&cli.image_path, &out_put_path) {
                     error!("Failed to get Registry Data for System Information: {err}")
                 }
                 println!("All done!");
+                println!(
+                    "Elapsed time from very beginning (hitting enter): {:.2?}",
+                    before.elapsed()
+                );
+                println!(
+                    "Elapsed time from actual start of first extracting command: {:.2?}",
+                    before2.elapsed()
+                );
                 Ok(())
             }
             ProcessingMode::EventLogOnly => {
@@ -212,10 +295,19 @@ fn main() -> Result<()> {
                 println!("EventLogs are not implemented yet, will continue with Registry Only!");
                 let path = format!("{}/{}", cli.output_path, cli.folder_name);
                 let out_put_path = make_path(path).context("Failed to create directory!")?;
+                let before2 = Instant::now();
                 if let Err(err) = get_systeminfo_registry_data(&cli.image_path, &out_put_path) {
                     error!("Failed to get Registry Data for System Information: {err}")
                 }
                 println!("All done!");
+                println!(
+                    "Elapsed time from very beginning (hitting enter): {:.2?}",
+                    before.elapsed()
+                );
+                println!(
+                    "Elapsed time from actual start of first extracting command: {:.2?}",
+                    before2.elapsed()
+                );
                 Ok(())
             }
         },
