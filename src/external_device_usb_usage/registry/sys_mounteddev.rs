@@ -48,7 +48,7 @@ pub fn sys_get_mounteddev_data(reg_file: &str, outpath: &str) -> Result<(), Erro
     let sub_key_node = root_key_node.subpath("MountedDevices").unwrap().unwrap();
     let mut mounted_devices: Vec<MountedDevice> = Vec::new();
 
-    while let Some(values) = sub_key_node.values() {
+    for values in sub_key_node.values() {
         let values = values.unwrap();
         for value in values {
             let value = value.unwrap();
