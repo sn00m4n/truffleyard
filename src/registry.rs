@@ -18,9 +18,8 @@ use crate::system_information::registry::current_version::get_current_os_version
 use crate::system_information::registry::operating_system_version::get_os_updates;
 use crate::system_information::registry::system_last_shutdown_time::get_shutdown_time;
 
-pub fn get_registry_data(input: &str, outpath: &str) -> anyhow::Result<()> {
+pub fn get_registry_data(input: &str, outpath: &str, vidpid: &str) -> anyhow::Result<()> {
     let mut found_something = false;
-    let vidpidjson = "testlists/output.json";
     // SOFTWARE hive
     match find_software_hive(input) {
         Ok(path) => {
@@ -33,7 +32,7 @@ pub fn get_registry_data(input: &str, outpath: &str) -> anyhow::Result<()> {
             if let Err(err) = sof_get_vic_data(&path, outpath) {
                 error!("Failed to get Volume Info Cache: {err}")
             }
-            if let Err(err) = sof_get_device_data(&path, vidpidjson, outpath) {
+            if let Err(err) = sof_get_device_data(&path, vidpid, outpath) {
                 error!("Failed to get Device Data: {err}")
             }
             if let Err(err) = get_current_os_version(&path, outpath) {
@@ -48,7 +47,7 @@ pub fn get_registry_data(input: &str, outpath: &str) -> anyhow::Result<()> {
     match find_system_hive(input) {
         Ok(path) => {
             found_something = true;
-            if let Err(err) = sys_get_hid_data(&path, vidpidjson, outpath) {
+            if let Err(err) = sys_get_hid_data(&path, vidpid, outpath) {
                 error!("Failed to get HID Data: {err}")
             }
             if let Err(err) = sys_get_mounteddev_data(&path, outpath) {
@@ -57,7 +56,7 @@ pub fn get_registry_data(input: &str, outpath: &str) -> anyhow::Result<()> {
             if let Err(err) = sys_get_scsi_data(&path, outpath) {
                 error!("Failed to get SCSI Data: {err}")
             }
-            if let Err(err) = sys_get_usb_data(&path, vidpidjson, outpath) {
+            if let Err(err) = sys_get_usb_data(&path, vidpid, outpath) {
                 error!("Failed to get USB Data: {err}")
             }
             if let Err(err) = sys_get_usbstor_data(&path, outpath) {

@@ -54,6 +54,9 @@ struct Cli {
     /// name of result-folder, default is "results"
     #[arg(short, long, default_value = "results")]
     folder_name: String,
+    /// path to file that contains vid&pid  
+    #[arg(short)]
+    vidpid_path: String,
     /// specifying Subcommands
     #[clap(subcommand)]
     command: Commands,
@@ -116,7 +119,7 @@ fn main() -> Result<()> {
             if let Err(err) = get_eventlog_data(&cli.image_path, &out_put_path) {
                 error!("Failed to get EventLog Data: {err}")
             }
-            if let Err(err) = get_registry_data(&cli.image_path, &out_put_path) {
+            if let Err(err) = get_registry_data(&cli.image_path, &out_put_path, &cli.vidpid_path) {
                 error!("Failed to get Registry Data: {err}")
             }
             println!("All done!");
@@ -134,7 +137,7 @@ fn main() -> Result<()> {
             let path = format!("{}/{}", cli.output_path, cli.folder_name);
             let out_put_path = make_path(path).context("Failed to create directory!")?;
             let before2 = Instant::now();
-            if let Err(err) = get_registry_data(&cli.image_path, &out_put_path) {
+            if let Err(err) = get_registry_data(&cli.image_path, &out_put_path, &cli.vidpid_path) {
                 error!("Failed to get Registry Data: {err}")
             }
             println!("All done!");
@@ -230,7 +233,11 @@ fn main() -> Result<()> {
                 let path = format!("{}/{}", cli.output_path, cli.folder_name);
                 let out_put_path = make_path(path).context("Failed to create directory!")?;
                 let before2 = Instant::now();
-                if let Err(err) = get_externaldevice_registry_data(&cli.image_path, &out_put_path) {
+                if let Err(err) = get_externaldevice_registry_data(
+                    &cli.image_path,
+                    &out_put_path,
+                    &cli.vidpid_path,
+                ) {
                     error!("Failed to get Registry Data for External Devices: {err}")
                 }
                 println!("All done!");
@@ -253,7 +260,11 @@ fn main() -> Result<()> {
                 let path = format!("{}/{}", cli.output_path, cli.folder_name);
                 let out_put_path = make_path(path).context("Failed to create directory: {err}")?;
                 let before2 = Instant::now();
-                if let Err(err) = get_externaldevice_registry_data(&cli.image_path, &out_put_path) {
+                if let Err(err) = get_externaldevice_registry_data(
+                    &cli.image_path,
+                    &out_put_path,
+                    &cli.vidpid_path,
+                ) {
                     error!("Failed to get Registry Data for External Devices: {err}")
                 }
                 println!("All done!");
