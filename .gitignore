@@ -27,3 +27,4 @@ src/cloud_storage
 src/deleted_items_file_existence
 src/file_folder_opening
 src/network_activity_physical_location
+src/errors.rs
