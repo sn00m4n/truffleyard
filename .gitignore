@@ -19,3 +19,11 @@ images/drawing.png
 images/truffleyard.jpg
 src/extras_fuer_die_ich_noch_keine_idee_habe
 result/
+src/account_usage/registry/cloud_account_details.rs
+src/account_usage/registry/last_login_password_change.rs
+src/application_execution
+src/browser_activity
+src/cloud_storage
+src/deleted_items_file_existence
+src/file_folder_opening
+src/network_activity_physical_location
