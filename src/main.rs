@@ -5,7 +5,6 @@ mod application_execution;
 mod browser_activity;
 mod cloud_storage;
 mod deleted_items_file_existence;
-mod errors;
 mod eventlogs;
 mod external_device_usb_usage;
 mod file_folder_opening;

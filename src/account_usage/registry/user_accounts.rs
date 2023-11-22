@@ -4,12 +4,11 @@
 use std::fs::File;
 use std::io::{BufWriter, Read, Write};
 
+use anyhow::anyhow;
 use chrono::{DateTime, Utc};
 use common::convert_win_time;
 use nt_hive::Hive;
 use serde::Serialize;
-
-use crate::errors::Error;
 
 #[derive(Debug, Serialize)]
 struct ProfileListEntry {
@@ -19,36 +18,34 @@ struct ProfileListEntry {
 }
 
 // retrieve data about users
-pub fn get_profile_list(reg_file: &str, outpath: &str) -> Result<(), Error> {
+pub fn get_profile_list(reg_file: &str, outpath: &str) -> anyhow::Result<()> {
     print!("Working on User Accounts: ");
     let mut buffer = Vec::new();
-    File::open(reg_file)
-        .unwrap()
-        .read_to_end(&mut buffer)
-        .unwrap();
+    File::open(reg_file)?.read_to_end(&mut buffer)?;
 
-    let hive = Hive::without_validation(buffer.as_ref()).unwrap();
-    let root_key_node = hive.root_key_node().unwrap();
+    let hive = Hive::without_validation(buffer.as_ref())?;
+    let root_key_node = hive.root_key_node()?;
 
     let mut profile_list_list: Vec<ProfileListEntry> = Vec::new();
 
     let sub_key_node = root_key_node
         .subpath("Microsoft\\Windows NT\\CurrentVersion\\ProfileList")
-        .unwrap()
-        .unwrap();
+        .ok_or(anyhow!(
+            "Key 'Microsoft\\Windows NT\\CurrentVersion\\ProfileList' not found!"
+        ))??;
 
-    let sub_key_nodes = sub_key_node.subkeys().unwrap().unwrap();
+    let sub_key_nodes = sub_key_node
+        .subkeys()
+        .ok_or(anyhow!("Subkeys can not be unwrapped!"))??;
 
     for sub_keys in sub_key_nodes {
-        let sub_keys = sub_keys.unwrap();
-        let sid = sub_keys.name().unwrap().to_string();
+        let sub_keys = sub_keys?;
+        let sid = sub_keys.name()?.to_string();
         let timestamp = convert_win_time(sub_keys.header().timestamp.get());
         let profile_image_path = sub_keys
             .value("ProfileImagePath")
-            .unwrap()
-            .unwrap()
-            .string_data()
-            .unwrap();
+            .ok_or(anyhow!("Key 'Profile Image Path' not found!"))??
+            .string_data()?;
         let profile_list_entry = ProfileListEntry {
             timestamp,
             sid,

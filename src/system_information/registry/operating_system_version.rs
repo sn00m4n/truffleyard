@@ -4,12 +4,11 @@
 use std::fs::File;
 use std::io::{BufWriter, Read, Write};
 
+use anyhow::anyhow;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use common::convert_win_time;
 use nt_hive::Hive;
 use serde::Serialize;
-
-use crate::errors::Error;
 
 #[derive(Debug, Serialize)]
 struct SourceOSEntry {
@@ -26,93 +25,82 @@ struct SourceOSEntry {
     software_type: String,
 }
 
-pub fn get_os_updates(reg_file: &str, outpath: &str) -> Result<(), Error> {
+pub fn get_os_updates(reg_file: &str, outpath: &str) -> anyhow::Result<()> {
     print!("Working on previous OS Versions: ");
     let mut buffer = Vec::new();
-    File::open(reg_file)
-        .unwrap()
-        .read_to_end(&mut buffer)
-        .unwrap();
+    File::open(reg_file)?.read_to_end(&mut buffer)?;
 
-    let hive = Hive::without_validation(buffer.as_ref()).unwrap();
-    let root_key_node = hive.root_key_node().unwrap();
+    let hive = Hive::without_validation(buffer.as_ref())?;
+    let root_key_node = hive.root_key_node()?;
 
-    let sub_key_node = root_key_node.subpath("Setup").unwrap().unwrap();
+    let sub_key_node = root_key_node
+        .subpath("Setup")
+        .ok_or(anyhow!("Key 'Setup' can not be found!"))??;
 
-    let sub_key_nodes = sub_key_node.subkeys().unwrap().unwrap();
+    let sub_key_nodes = sub_key_node
+        .subkeys()
+        .ok_or(anyhow!("Subkeys can not be unwrapped!"))??;
 
     let mut sourceos_entries: Vec<SourceOSEntry> = Vec::new();
 
     for subkeys in sub_key_nodes {
-        let subkey = subkeys.unwrap();
-        let subname = subkey.name().unwrap().to_string();
+        let subkey = subkeys?;
+        let subname = subkey.name()?.to_string();
         if subname.starts_with("Source OS") {
-            let current_build_number = subkey
+            let current_build_number = sub_key_node
                 .value("CurrentBuildNumber")
-                .unwrap()
-                .unwrap()
+                .ok_or(anyhow!("Current Build Number can not be found!"))??
                 .string_data()
                 .unwrap_or("".to_string());
-            let edition_id = subkey
+            let edition_id = sub_key_node
                 .value("EditionID")
-                .unwrap()
-                .unwrap()
+                .ok_or(anyhow!("Edition ID can not be found!"))??
                 .string_data()
                 .unwrap_or("".to_string());
-            let installation_type = subkey
+            let installation_type = sub_key_node
                 .value("InstallationType")
-                .unwrap()
-                .unwrap()
+                .ok_or(anyhow!("Installation Type can not be found!"))??
                 .string_data()
                 .unwrap_or("".to_string());
-            let install_d = subkey
+            let install_d = sub_key_node
                 .value("InstallDate")
-                .unwrap()
-                .unwrap()
-                .dword_data()
-                .unwrap() as i64;
-            let install_date = NaiveDateTime::from_timestamp_opt(install_d, 0).unwrap();
-            let install_t = subkey
+                .ok_or(anyhow!("Install Date can not be found!"))??
+                .dword_data()? as i64;
+            let install_date = NaiveDateTime::from_timestamp_opt(install_d, 0)
+                .ok_or(anyhow!("No timestamp found!"))?;
+            let install_t = sub_key_node
                 .value("InstallTime")
-                .unwrap()
-                .unwrap()
-                .qword_data()
-                .unwrap();
+                .ok_or(anyhow!("Install Time can not be found!"))??
+                .qword_data()?;
             let install_time = convert_win_time(install_t);
-            let path_name = subkey
+            let path_name = sub_key_node
                 .value("PathName")
-                .unwrap()
-                .unwrap()
+                .ok_or(anyhow!("Path Name can not be found!"))??
                 .string_data()
                 .unwrap_or("".to_string());
-            let product_id = subkey
+            let product_id = sub_key_node
                 .value("ProductID")
-                .unwrap()
-                .unwrap()
+                .ok_or(anyhow!("Product ID can not be found!"))??
                 .string_data()
                 .unwrap_or("".to_string());
-            let product_name = subkey
+            let product_name = sub_key_node
                 .value("ProductName")
-                .unwrap()
-                .unwrap()
+                .ok_or(anyhow!("Product Name can not be found!"))??
                 .string_data()
                 .unwrap_or("".to_string());
-            let registered_organization = subkey
+            let registered_organization = sub_key_node
                 .value("RegisteredOrganization")
-                .unwrap()
-                .unwrap()
+                .ok_or(anyhow!("Registered Organization can not be found!"))??
                 .string_data()
                 .unwrap_or("".to_string());
-            let registered_owner = subkey
+            let registered_owner = sub_key_node
                 .value("RegisteredOwner")
-                .unwrap()
-                .unwrap()
+                .ok_or(anyhow!("Registered Owner can not be found!"))??
                 .string_data()
                 .unwrap_or("".to_string());
-            let software_type = subkey
+            let software_type = sub_key_node
                 .value("SoftwareType")
-                .unwrap()
-                .unwrap()
+                .ok_or(anyhow!("Software Type can not be found!"))??
                 .string_data()
                 .unwrap_or("".to_string());
             let source_os_entry = SourceOSEntry {

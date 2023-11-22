@@ -2,6 +2,7 @@ use std::fmt::Debug;
 use std::fs::File;
 use std::io::{BufWriter, Read, Write};
 
+use anyhow::anyhow;
 use common::read_extended_ascii;
 use encoding_rs::UTF_16LE;
 use nt_hive::Hive;
@@ -9,17 +10,17 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Serialize;
 
-use crate::errors::Error;
-
 // drive letter and volume name from System Hive
 
-//regional express
+//regex 1
 static RE: Lazy<Regex> = Lazy::new(|| {
+    #[allow(clippy::unwrap_used)]
     Regex::new(".*?Ven_(?<man>.*?)&Prod_(?<prod>.*?)&Rev_(?<vers>.*?)#(?<ser>.*?)#(?<gid>.*?\\S*)")
         .unwrap()
 });
 
-//regional bahn
+//regex 2
+#[allow(clippy::unwrap_used)]
 static RB: Lazy<Regex> = Lazy::new(|| {
     Regex::new(".*?Ven_(?<man>.*?)&Prod_(?<prod>.*?)#(?<ser>.*?)#(?<gid>.*?\\S*)").unwrap()
 });
@@ -35,26 +36,25 @@ pub struct MountedDevice {
     guid: String,
 }
 
-pub fn sys_get_mounteddev_data(reg_file: &str, outpath: &str) -> Result<(), Error> {
+pub fn sys_get_mounteddev_data(reg_file: &str, outpath: &str) -> anyhow::Result<()> {
     print!("Working on Mounted Devices: ");
     let mut buffer = Vec::new();
-    File::open(reg_file)
-        .unwrap()
-        .read_to_end(&mut buffer)
-        .unwrap();
+    File::open(reg_file)?.read_to_end(&mut buffer)?;
 
-    let hive = Hive::without_validation(buffer.as_ref()).unwrap();
-    let root_key_node = hive.root_key_node().unwrap();
-    let sub_key_node = root_key_node.subpath("MountedDevices").unwrap().unwrap();
+    let hive = Hive::without_validation(buffer.as_ref())?;
+    let root_key_node = hive.root_key_node()?;
+    let sub_key_node = root_key_node
+        .subpath("MountedDevices")
+        .ok_or(anyhow!("Key 'MountedDevices' can not be found!"))??;
     let mut mounted_devices: Vec<MountedDevice> = Vec::new();
 
     for values in sub_key_node.values() {
-        let values = values.unwrap();
+        let values = values?;
         for value in values {
-            let value = value.unwrap();
-            let value_name = value.name().unwrap();
+            let value = value?;
+            let value_name = value.name()?;
             //println!("{}", value_name);
-            let value_data = value.data().unwrap().into_vec().unwrap();
+            let value_data = value.data()?.into_vec()?;
             let n = 2;
             let result: Vec<_> = value_data.iter().skip(n - 1).step_by(n).copied().collect();
             //println!("{:?}", result);
@@ -81,12 +81,39 @@ pub fn sys_get_mounteddev_data(reg_file: &str, outpath: &str) -> Result<(), Erro
                 let (string, _encodingzeugs, _invalid_chars) = UTF_16LE.decode(&value_data);
                 let string = string.to_string();
                 if string.contains("&Rev_") {
-                    let capture = RE.captures(&string).unwrap();
-                    let vendorname = capture.name("man").unwrap().as_str().trim().to_string();
-                    let productname = capture.name("prod").unwrap().as_str().trim().to_string();
-                    let revision = capture.name("vers").unwrap().as_str().trim().to_string();
-                    let serial = capture.name("ser").unwrap().as_str().trim().to_string();
-                    let guid = capture.name("gid").unwrap().as_str().trim().to_string();
+                    let capture = RE
+                        .captures(&string)
+                        .ok_or(anyhow!("Captures are not okay!"))?;
+                    let vendorname = capture
+                        .name("man")
+                        .ok_or(anyhow!("Vendorname not found!"))?
+                        .as_str()
+                        .trim()
+                        .to_string();
+                    let productname = capture
+                        .name("prod")
+                        .ok_or(anyhow!("Productname not found!"))?
+                        .as_str()
+                        .trim()
+                        .to_string();
+                    let revision = capture
+                        .name("vers")
+                        .ok_or(anyhow!("Revision not found!"))?
+                        .as_str()
+                        .trim()
+                        .to_string();
+                    let serial = capture
+                        .name("ser")
+                        .ok_or(anyhow!("Serialnumber not found!"))?
+                        .as_str()
+                        .trim()
+                        .to_string();
+                    let guid = capture
+                        .name("gid")
+                        .ok_or(anyhow!("GUID not found!"))?
+                        .as_str()
+                        .trim()
+                        .to_string();
                     //  println!("{vendorname}, {productname}, {revision}, {serial}, {guid}");
                     let device = MountedDevice {
                         device_name: value_name.to_string(),
@@ -101,11 +128,33 @@ pub fn sys_get_mounteddev_data(reg_file: &str, outpath: &str) -> Result<(), Erro
                     mounted_devices.push(device);
                 }
                 if !string.contains("&Rev") {
-                    let capture = RB.captures(&string).unwrap();
-                    let vendorname = capture.name("man").unwrap().as_str().trim().to_string();
-                    let productname = capture.name("prod").unwrap().as_str().trim().to_string();
-                    let serial = capture.name("ser").unwrap().as_str().trim().to_string();
-                    let guid = capture.name("gid").unwrap().as_str().trim().to_string();
+                    let capture = RB
+                        .captures(&string)
+                        .ok_or(anyhow!("Captures are not okay!"))?;
+                    let vendorname = capture
+                        .name("man")
+                        .ok_or(anyhow!("Vendorname not found!"))?
+                        .as_str()
+                        .trim()
+                        .to_string();
+                    let productname = capture
+                        .name("prod")
+                        .ok_or(anyhow!("Productname not found!"))?
+                        .as_str()
+                        .trim()
+                        .to_string();
+                    let serial = capture
+                        .name("ser")
+                        .ok_or(anyhow!("Serialnumber not found!"))?
+                        .as_str()
+                        .trim()
+                        .to_string();
+                    let guid = capture
+                        .name("gid")
+                        .ok_or(anyhow!("GUID not found!"))?
+                        .as_str()
+                        .trim()
+                        .to_string();
                     //println!("{vendorname}, {productname}, {serial}, {guid}");
                     let device = MountedDevice {
                         device_name: value_name.to_string(),

@@ -3,7 +3,7 @@
 use std::fs::File;
 use std::io::{BufWriter, Write};
 
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use chrono::{DateTime, Utc};
 use common::{parse_evtx, Event, Name, OuterName};
 use serde::Serialize;
@@ -36,16 +36,20 @@ pub fn sec_evtx_rdp_usage_data(input: &str, outpath: &str) -> Result<()> {
         //println!("{event_id}");
         // event id 4624 & logon type 10 -> successful rdp logon
         if event_id == 4624 {
-            for data in event.event_data.unwrap().events {
+            for data in event
+                .event_data
+                .ok_or(anyhow!("Event Data not found!"))?
+                .events
+            {
                 if data.name == Some(logon_type.clone()) {
-                    let test = data.value.unwrap();
-                    if test.eq("10") {
+                    let logon_type = data.value.ok_or(anyhow!("Logon Type not found!"))?;
+                    if logon_type.eq("10") {
                         let data = record.clone().data;
                         let json_data = to_json(&data)?;
                         let rdp_entry = RDPEventEntry {
                             event_record_id: record.event_record_id,
                             event_id: event.system.event_id,
-                            logon_type: test,
+                            logon_type,
                             timestamp: record.timestamp,
                             description: "Remote interactive logon (RDP)".to_string(),
                             data: json_data,

@@ -5,43 +5,37 @@
 use std::fs::File;
 use std::io::{BufWriter, Read, Write};
 
+use anyhow::anyhow;
 use chrono::{DateTime, Utc};
 use common::convert_win_time;
 use nt_hive::Hive;
 use serde::Serialize;
-
-use crate::errors::Error;
 
 #[derive(Debug, Serialize)]
 pub struct ShutdownTime {
     shutdown_time: DateTime<Utc>,
 }
 
-pub fn get_shutdown_time(reg_file: &str, outpath: &str) -> Result<(), Error> {
+pub fn get_shutdown_time(reg_file: &str, outpath: &str) -> anyhow::Result<()> {
     print!("Working on Last Shutdown Time: ");
     let mut buffer = Vec::new();
-    File::open(reg_file)
-        .unwrap()
-        .read_to_end(&mut buffer)
-        .unwrap();
+    File::open(reg_file)?.read_to_end(&mut buffer)?;
 
     let mut times: Vec<ShutdownTime> = Vec::new();
-    let hive = Hive::without_validation(buffer.as_ref()).unwrap();
-    let root_key_node = hive.root_key_node().unwrap();
+    let hive = Hive::without_validation(buffer.as_ref())?;
+    let root_key_node = hive.root_key_node()?;
 
     let sub_key_node = root_key_node
         .subpath("ControlSet001\\Control\\Windows")
-        .unwrap()
-        .unwrap();
+        .ok_or(anyhow!(
+            "Key 'ControlSet001\\Control\\Windows' can not be found!"
+        ))??;
 
     let sd_time = sub_key_node
         .value("ShutdownTime")
-        .unwrap()
-        .unwrap()
-        .data()
-        .unwrap()
-        .into_vec()
-        .unwrap();
+        .ok_or(anyhow!("Shutdown Time can not be found!"))??
+        .data()?
+        .into_vec()?;
 
     let [a, b, c, d, e, f, g, h] = sd_time[0..8] else {
         todo!("")

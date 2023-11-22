@@ -4,39 +4,34 @@
 use std::fs::File;
 use std::io::{BufWriter, Read, Write};
 
+use anyhow::anyhow;
 use nt_hive::Hive;
 use serde::Serialize;
-
-use crate::errors::Error;
 
 #[derive(Debug, Serialize)]
 struct ComputerName {
     computer_name: String,
 }
 
-pub fn get_computer_name(reg_file: &str, outpath: &str) -> Result<(), Error> {
+pub fn get_computer_name(reg_file: &str, outpath: &str) -> anyhow::Result<()> {
     print!("Working on Computer Name: ");
     let mut buffer = Vec::new();
-    File::open(reg_file)
-        .unwrap()
-        .read_to_end(&mut buffer)
-        .unwrap();
+    File::open(reg_file)?.read_to_end(&mut buffer)?;
 
     let mut computers: Vec<ComputerName> = Vec::new();
-    let hive = Hive::without_validation(buffer.as_ref()).unwrap();
-    let root_key_node = hive.root_key_node().unwrap();
+    let hive = Hive::without_validation(buffer.as_ref())?;
+    let root_key_node = hive.root_key_node()?;
 
     let sub_key_node = root_key_node
         .subpath("ControlSet001\\Control\\ComputerName\\ComputerName")
-        .unwrap()
-        .unwrap();
+        .ok_or(anyhow!(
+            "Key 'ControlSet001\\Control\\ComputerName\\ComputerName' can not be found!"
+        ))??;
 
     let computer_name = sub_key_node
         .value("ComputerName")
-        .unwrap()
-        .unwrap()
-        .string_data()
-        .unwrap();
+        .ok_or(anyhow!("Computername can not be found!"))??
+        .string_data()?;
 
     let computername = ComputerName { computer_name };
     computers.push(computername);

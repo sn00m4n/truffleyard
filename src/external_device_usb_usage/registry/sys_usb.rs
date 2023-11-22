@@ -1,12 +1,11 @@
 use std::fs::{read_to_string, File};
 use std::io::{BufWriter, Read, Write};
 
+use anyhow::anyhow;
 use chrono::{DateTime, Utc};
 use common::{convert_to_hex, convert_to_int, convert_win_time, VendorList};
 use nt_hive::Hive;
 use serde::Serialize;
-
-use crate::errors::Error;
 
 #[derive(Debug, Serialize)]
 struct UsbEntry {
@@ -25,43 +24,43 @@ pub fn sys_get_usb_data(
     reg_file: &str,
     vidpid_json_path: &str,
     outpath: &str,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
     print!("Working on USB: ");
     let mut buffer = Vec::new();
-    File::open(reg_file)
-        .unwrap()
-        .read_to_end(&mut buffer)
-        .unwrap();
+    File::open(reg_file)?.read_to_end(&mut buffer)?;
 
-    let hive = Hive::without_validation(buffer.as_ref()).unwrap();
-    let root_key_node = hive.root_key_node().unwrap();
+    let hive = Hive::without_validation(buffer.as_ref())?;
+    let root_key_node = hive.root_key_node()?;
     let sub_key_node = root_key_node
         .subpath("ControlSet001\\Enum\\USB")
-        .unwrap()
-        .unwrap();
+        .ok_or(anyhow!("Key 'ControlSet001\\Enum\\USB' can not be found!"))??;
 
-    let sub_key_nodes = sub_key_node.subkeys().unwrap().unwrap();
+    let sub_key_nodes = sub_key_node
+        .subkeys()
+        .ok_or(anyhow!("Subkeys can not be unwrapped!"))??;
 
     let mut usb_entries: Vec<UsbEntry> = Vec::new(); // list to save structs
 
-    let data = read_to_string(vidpid_json_path).unwrap();
-    let vendors: VendorList = serde_json::from_str(&data).unwrap();
+    let data = read_to_string(vidpid_json_path)?;
+    let vendors: VendorList = serde_json::from_str(&data)?;
 
     for sub_keys in sub_key_nodes {
-        let sub_key = sub_keys.unwrap();
-        let subkey = sub_key.name().unwrap().to_string();
+        let sub_key = sub_keys?;
+        let subkey = sub_key.name()?.to_string();
 
         if subkey.starts_with("VID_") {
             let vid = subkey.split_at(4).1.split_at(4).0;
             let pid = subkey.split_at(13).1.split_at(4).0;
 
-            let vid = convert_to_int(vid).unwrap();
-            let pid = convert_to_int(pid).unwrap();
+            let vid = convert_to_int(vid)?;
+            let pid = convert_to_int(pid)?;
 
-            let serial_subkey = sub_key.subkeys().unwrap().unwrap();
+            let serial_subkey = sub_key
+                .subkeys()
+                .ok_or(anyhow!("Subkeys can not be unwrapped!"))??;
             for subsubkey in serial_subkey {
-                let subsubkey = subsubkey.unwrap();
-                let serialnumber = subsubkey.name().unwrap().to_string();
+                let subsubkey = subsubkey?;
+                let serialnumber = subsubkey.name()?.to_string();
                 let timestamp = convert_win_time(subsubkey.header().timestamp.get());
                 let parentidpref = subsubkey.value("ParentIdPrefix");
                 let location_info = subsubkey.value("LocationInformation");
