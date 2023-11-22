@@ -61,7 +61,7 @@ pub fn sec_evtx_logons_data(input: &str, outpath: &str) -> Result<(), Error> {
                         logons_list.push(logon_entry);
                     }
                     // network logon
-                    if logontype.eq("3") {
+                    else if logontype.eq("3") {
                         let data = record.clone().data;
                         let json_data = to_json(&data).unwrap();
                         let logon_entry = LogonEntry {
@@ -75,7 +75,7 @@ pub fn sec_evtx_logons_data(input: &str, outpath: &str) -> Result<(), Error> {
                         logons_list.push(logon_entry);
                     }
                     // batch logon
-                    if logontype.eq("4") {
+                    else if logontype.eq("4") {
                         let data = record.clone().data;
                         let json_data = to_json(&data).unwrap();
                         let logon_entry = LogonEntry {
@@ -89,7 +89,7 @@ pub fn sec_evtx_logons_data(input: &str, outpath: &str) -> Result<(), Error> {
                         logons_list.push(logon_entry);
                     }
                     // windows service logon
-                    if logontype.eq("5") {
+                    else if logontype.eq("5") {
                         let data = record.clone().data;
                         let json_data = to_json(&data).unwrap();
                         let logon_entry = LogonEntry {
@@ -103,7 +103,7 @@ pub fn sec_evtx_logons_data(input: &str, outpath: &str) -> Result<(), Error> {
                         logons_list.push(logon_entry);
                     }
                     // credentials used to unlock screen, rdp session reconnect
-                    if logontype.eq("7") {
+                    else if logontype.eq("7") {
                         let data = record.clone().data;
                         let json_data = to_json(&data).unwrap();
                         let logon_entry = LogonEntry {
@@ -118,7 +118,7 @@ pub fn sec_evtx_logons_data(input: &str, outpath: &str) -> Result<(), Error> {
                         logons_list.push(logon_entry);
                     }
                     // network logon sending credentials (cleartext)
-                    if logontype.eq("8") {
+                    else if logontype.eq("8") {
                         let data = record.clone().data;
                         let json_data = to_json(&data).unwrap();
                         let logon_entry = LogonEntry {
@@ -133,7 +133,7 @@ pub fn sec_evtx_logons_data(input: &str, outpath: &str) -> Result<(), Error> {
                         logons_list.push(logon_entry);
                     }
                     // different credentials used than logged on user
-                    if logontype.eq("9") {
+                    else if logontype.eq("9") {
                         let data = record.clone().data;
                         let json_data = to_json(&data).unwrap();
                         let logon_entry = LogonEntry {
@@ -148,7 +148,7 @@ pub fn sec_evtx_logons_data(input: &str, outpath: &str) -> Result<(), Error> {
                         logons_list.push(logon_entry);
                     }
                     // remote interactive logon (RDP)
-                    if logontype.eq("10") {
+                    else if logontype.eq("10") {
                         let data = record.clone().data;
                         let json_data = to_json(&data).unwrap();
                         let logon_entry = LogonEntry {
@@ -162,7 +162,7 @@ pub fn sec_evtx_logons_data(input: &str, outpath: &str) -> Result<(), Error> {
                         logons_list.push(logon_entry);
                     }
                     // cached credentials used to login
-                    if logontype.eq("11") {
+                    else if logontype.eq("11") {
                         let data = record.clone().data;
                         let json_data = to_json(&data).unwrap();
                         let logon_entry = LogonEntry {
@@ -176,7 +176,7 @@ pub fn sec_evtx_logons_data(input: &str, outpath: &str) -> Result<(), Error> {
                         logons_list.push(logon_entry);
                     }
                     // cached remote interactive (similar to type 10)
-                    if logontype.eq("12") {
+                    else if logontype.eq("12") {
                         let data = record.clone().data;
                         let json_data = to_json(&data).unwrap();
                         let logon_entry = LogonEntry {
@@ -190,7 +190,7 @@ pub fn sec_evtx_logons_data(input: &str, outpath: &str) -> Result<(), Error> {
                         logons_list.push(logon_entry);
                     }
                     // cached unlock (similar to type 7)
-                    if logontype.eq("13") {
+                    else if logontype.eq("13") {
                         let data = record.clone().data;
                         let json_data = to_json(&data).unwrap();
                         let logon_entry = LogonEntry {
@@ -207,7 +207,7 @@ pub fn sec_evtx_logons_data(input: &str, outpath: &str) -> Result<(), Error> {
             }
         }
         // failed logon
-        if event_id == 4625 {
+        else if event_id == 4625 {
             let data = record.clone().data;
             let json_data = to_json(&data).unwrap();
             let logon_entry = LogonEntry {
@@ -221,7 +221,7 @@ pub fn sec_evtx_logons_data(input: &str, outpath: &str) -> Result<(), Error> {
             logons_list.push(logon_entry);
         }
         // successful logoff
-        if event_id == 4634 || event_id == 4647 {
+        else if event_id == 4634 || event_id == 4647 {
             let data = record.clone().data;
             let json_data = to_json(&data).unwrap();
             let logon_entry = LogonEntry {
@@ -235,7 +235,7 @@ pub fn sec_evtx_logons_data(input: &str, outpath: &str) -> Result<(), Error> {
             logons_list.push(logon_entry);
         }
         // logon using explicit credentials (runas)
-        if event_id == 4648 {
+        else if event_id == 4648 {
             let data = record.clone().data;
             let json_data = to_json(&data).unwrap();
             let logon_entry = LogonEntry {
@@ -249,7 +249,7 @@ pub fn sec_evtx_logons_data(input: &str, outpath: &str) -> Result<(), Error> {
             logons_list.push(logon_entry);
         }
         // account logon with superuser rights (administrator)
-        if event_id == 4672 {
+        else if event_id == 4672 {
             let data = record.clone().data;
             let json_data = to_json(&data).unwrap();
             let logon_entry = LogonEntry {
@@ -263,7 +263,7 @@ pub fn sec_evtx_logons_data(input: &str, outpath: &str) -> Result<(), Error> {
             logons_list.push(logon_entry);
         }
         // an account was created
-        if event_id == 4720 {
+        else if event_id == 4720 {
             let data = record.clone().data;
             let json_data = to_json(&data).unwrap();
             let logon_entry = LogonEntry {
