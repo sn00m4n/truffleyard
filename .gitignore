@@ -1,5 +1,5 @@
 target/
-*.json
+out.json
 *.csv
 auslagerungen.txt
 *.txt
