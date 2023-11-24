@@ -3,9 +3,8 @@ use std::io::{BufWriter, Read, Write};
 
 use anyhow::{anyhow, Context, Result};
 use chrono::{DateTime, Utc};
-use common::{convert_to_int, convert_win_time, VendorList};
+use common::{convert_to_int, convert_win_time, Lazy, VendorList};
 use nt_hive::Hive;
-use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Serialize;
 use serde_json::from_str;

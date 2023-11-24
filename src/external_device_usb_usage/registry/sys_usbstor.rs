@@ -3,9 +3,8 @@ use std::io::{BufWriter, Read, Write};
 
 use anyhow::anyhow;
 use chrono::{DateTime, Utc};
-use common::convert_win_time;
+use common::{convert_win_time, Lazy};
 use nt_hive::Hive;
-use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Serialize;
 

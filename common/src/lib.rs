@@ -2,6 +2,8 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::Error;
 use std::num::ParseIntError;
+use std::ops::Deref;
+use std::sync::OnceLock;
 use std::{fs, io};
 
 use anyhow::{anyhow, Result};
@@ -251,5 +253,27 @@ pub fn make_path(path: String) -> Result<String> {
                 Err(anyhow!("Invalid input. Aborting."))
             }
         }
+    }
+}
+
+/// Zur Erstellung von Globals, welches seinen Wert erst beim ersten Zugriff initialisiert. Dies ermöglicht Heap Operationen.
+pub struct Lazy<T> {
+    cell: OnceLock<T>,
+    init: fn() -> T,
+}
+
+impl<T> Lazy<T> {
+    pub const fn new(init: fn() -> T) -> Self {
+        Self {
+            cell: OnceLock::new(),
+            init,
+        }
+    }
+}
+
+impl<T> Deref for Lazy<T> {
+    type Target = T;
+    fn deref(&self) -> &Self::Target {
+        self.cell.get_or_init(self.init)
     }
 }

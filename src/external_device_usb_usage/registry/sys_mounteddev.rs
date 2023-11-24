@@ -3,9 +3,8 @@ use std::fs::File;
 use std::io::{BufWriter, Read, Write};
 
 use anyhow::anyhow;
-use common::read_extended_ascii;
+use common::{read_extended_ascii, Lazy};
 use nt_hive::Hive;
-use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Serialize;
 

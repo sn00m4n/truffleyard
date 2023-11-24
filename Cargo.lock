@@ -1084,7 +1084,6 @@ dependencies = [
  "evtx",
  "log",
  "nt-hive",
- "once_cell",
  "regex",
  "serde",
  "serde-xml-rs",
