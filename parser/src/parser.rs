@@ -1,3 +1,6 @@
+// This parser uses the LsUSB Repo from Linux Hardware Project (https://github.com/linuxhw/LsUSB)
+// you have to clone it locally to use this parser
+
 use std::fs;
 use std::fs::read_to_string;
 use std::path::Path;
