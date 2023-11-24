@@ -48,9 +48,6 @@ anyhow = "~1"
 # (regex lazy) compiles regex only one time for faster program
 once_cell = "~1"
 
-# windows encoding utf16le
-encoding_rs = "~0.8"
-
 
 # logging facade
 log = "~0.4"

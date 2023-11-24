@@ -4,7 +4,6 @@ use std::io::{BufWriter, Read, Write};
 
 use anyhow::anyhow;
 use common::read_extended_ascii;
-use encoding_rs::UTF_16LE;
 use nt_hive::Hive;
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -78,8 +77,11 @@ pub fn sys_get_mounteddev_data(reg_file: &str, outpath: &str) -> anyhow::Result<
                     mounted_devices.push(device);
                 }
             } else {
-                let (string, _encodingzeugs, _invalid_chars) = UTF_16LE.decode(&value_data);
-                let string = string.to_string();
+                let mut converted = Vec::new();
+                for value in value_data.chunks_exact(2) {
+                    converted.push(u16::from_le_bytes([value[0], value[1]]));
+                }
+                let string = String::from_utf16_lossy(&converted);
                 if string.contains("&Rev_") {
                     let capture = RE
                         .captures(&string)
