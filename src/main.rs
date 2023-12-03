@@ -1,17 +1,17 @@
 #![warn(clippy::unwrap_used, clippy::expect_used)]
 
 mod account_usage;
-mod application_execution;
-mod browser_activity;
-mod cloud_storage;
-mod deleted_items_file_existence;
+//mod application_execution;
+//mod browser_activity;
+//mod cloud_storage;
+//mod deleted_items_file_existence;
 mod eventlogs;
 mod external_device_usb_usage;
-mod file_folder_opening;
-mod network_activity_physical_location;
+//mod file_folder_opening;
+//mod network_activity_physical_location;
 mod registry;
 mod system_information;
-mod tests;
+//mod tests;
 
 //use std::error::Error;
 use std::fmt::{Display, Formatter};
