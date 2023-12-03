@@ -5,9 +5,9 @@
 ## Tutorial (Linux)
 
 ## prerequisites (if needed):
--> Download and install Rust (using rustup is recommended) on www.rust-lang.org/tools/install
--> Download and install cargo via package manager (e.g. sudo apt install cargo)
--> Download git via package manager (e.g. sudo apt install git)
+-> Download and install Rust (using rustup is recommended) on www.rust-lang.org/tools/install \
+-> Download and install cargo via package manager (e.g. sudo apt install cargo)\
+-> Download git via package manager (e.g. sudo apt install git)\
 
 ## Download and Install:
 1. git clone this repository in desired location
@@ -22,18 +22,18 @@ cargo install --path .
 
 ## HOW TO USE
 
-for now, this works only if the image is mounted in filesystem (read-only) using losetup
+for now, this works only if the image is mounted in filesystem (read-only) using losetup\
 1. sudo losetup --find --partscan --show  --read-only /path/to/image.dd
 2. sudo mount \<loopdevice\> \<mountpoint\>
 
-tool uses the target_mountpoint as argument for now (will be changed eventually)
+tool uses the target_mountpoint as argument for now (will be changed eventually)\
 
 help:
 ```
 truffleyard -h
 ```
 
-Usage: truffleyard \[OPTIONS\] -i \<IMAGE\_PATH\> -v \<VIDPID\_PATH\> \<COMMAND\>
+Usage: truffleyard \[OPTIONS\] -i \<IMAGE\_PATH\> -v \<VIDPID\_PATH\> \<COMMAND\>\
 
 Commands:\
 all: Analyzes everything (that's implemented so far)\
