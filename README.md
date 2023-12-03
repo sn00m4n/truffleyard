@@ -7,7 +7,7 @@
 ## prerequisites (if needed):
 -> Download and install Rust (using rustup is recommended) on www.rust-lang.org/tools/install \
 -> Download and install cargo via package manager (e.g. sudo apt install cargo)\
--> Download git via package manager (e.g. sudo apt install git)\
+-> Download git via package manager (e.g. sudo apt install git)
 
 ## Download and Install:
 1. git clone this repository in desired location
