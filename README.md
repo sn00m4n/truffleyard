@@ -36,19 +36,19 @@ truffleyard -h
 Usage: truffleyard \[OPTIONS\] -i \<IMAGE\_PATH\> -v \<VIDPID\_PATH\> \<COMMAND\>
 
 Commands:
-  all                 Analyzes everything (that's implemented so far)
-  registry            Analyzes only Registry artifacts (that are implemented so far)
-  event-logs          Analyzes only EventLog artifacts (that are implemented so far)
-  account-usage       Analyzes Account Usage artifacts
-  external-devices    Analyzes External Devices and USB usage artifacts
-  system-information  Analyzes System Information artifacts
-  help                Print this message or the help of the given subcommand(s)
+  all: Analyzes everything (that's implemented so far)
+  registry: Analyzes only Registry artifacts (that are implemented so far)
+  event-logs: Analyzes only EventLog artifacts (that are implemented so far)
+  account-usage: Analyzes Account Usage artifacts
+  external-devices: Analyzes External Devices and USB usage artifacts
+  system-information: Analyzes System Information artifacts
+  help: Print this message or the help of the given subcommand(s)
 
 Options:
-  -i \<IMAGE\_PATH\>                  path where mounted image is located
-  -o \<OUTPUT\_PATH\>                 output path, default is working directory \[default: .\]
-  -f, --folder-name \<FOLDER\_NAME\>  name of result-folder, default is "results" \[default: results\]
-  -v \<VIDPID\_PATH\>                 path to file that contains vid&pid
-  -h, --help                          Print help
-  -V, --version                       Print version
+  -i \<IMAGE\_PATH\>: path where mounted image is located
+  -o \<OUTPUT\_PATH\>: output path, default is working directory \[default: .\]
+  -f, --folder-name \<FOLDER\_NAME\>: name of result-folder, default is "results" \[default: results\]
+  -v \<VIDPID\_PATH\>: path to file that contains vid&pid
+  -h, --help: Print help
+  -V, --version: Print version
 
