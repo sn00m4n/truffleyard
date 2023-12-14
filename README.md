@@ -22,11 +22,11 @@ cargo install --path .
 
 ## HOW TO USE
 
-for now, this works only if the image is mounted in filesystem (read-only) using losetup\
+for now, this works only if the image is mounted in filesystem (read-only) using losetup
 1. sudo losetup --find --partscan --show  --read-only /path/to/image.dd
 2. sudo mount \<loopdevice\> \<mountpoint\>
 
-tool uses the target_mountpoint as argument for now (will be changed eventually)\
+tool uses the target_mountpoint as argument for now (will be changed eventually)
 
 help:
 ```
